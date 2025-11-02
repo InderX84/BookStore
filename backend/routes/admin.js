@@ -13,6 +13,7 @@ router.get('/orders', authenticate, authorize('admin'), adminController.getAllOr
 router.patch('/orders/:id/status', authenticate, authorize('admin'), adminController.updateOrderStatus);
 router.get('/users', authenticate, authorize('admin'), adminController.getAllUsers);
 router.patch('/users/:id/suspend', authenticate, authorize('admin'), adminController.suspendUser);
+router.patch('/users/:id/role', authenticate, authorize('admin'), adminController.updateUserRole);
 
 // Category routes
 router.get('/categories', authenticate, authorize('admin'), categoryController.getCategories);

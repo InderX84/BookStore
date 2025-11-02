@@ -29,10 +29,11 @@ export default function Profile() {
 
   const updateProfileMutation = useMutation({
     mutationFn: (data) => authService.updateProfile(data),
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries(['user'])
       toast.success('Profile updated successfully')
       setIsEditing(false)
+      window.location.reload()
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Failed to update profile')

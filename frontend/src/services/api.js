@@ -104,6 +104,7 @@ export const adminService = {
   updateOrderStatus: (id, status) => api.patch(`/admin/orders/${id}/status`, { status }),
   getUsers: (params) => api.get('/admin/users', { params }),
   suspendUser: (id) => api.patch(`/admin/users/${id}/suspend`),
+  updateUserRole: (id, role) => api.patch(`/admin/users/${id}/role`, { role }),
   createBook: (bookData) => api.post('/books', bookData),
   updateBook: (id, bookData) => api.put(`/books/${id}`, bookData),
   deleteBook: (id) => api.delete(`/books/${id}`),

@@ -29,11 +29,23 @@ export default function AdminUsers() {
   const suspendUserMutation = useMutation({
     mutationFn: (userId) => adminService.suspendUser(userId),
     onSuccess: () => {
-      toast.success('User suspended successfully')
+      toast.success('User status updated successfully')
       queryClient.invalidateQueries(['admin-users'])
     },
     onError: () => {
-      toast.error('Failed to suspend user')
+      toast.error('Failed to update user status')
+    }
+  })
+
+  const updateRoleMutation = useMutation({
+    mutationFn: ({ userId, role }) => adminService.updateUserRole(userId, role),
+    onSuccess: () => {
+      toast.success('User role updated successfully')
+      queryClient.invalidateQueries(['admin-users'])
+      setSelectedUser(null)
+    },
+    onError: () => {
+      toast.error('Failed to update user role')
     }
   })
 
@@ -218,7 +230,24 @@ export default function AdminUsers() {
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="text-sm font-medium text-gray-600">Role</label>
-                  <p className="text-gray-900 font-medium capitalize">{selectedUser.role}</p>
+                  <div className="flex items-center gap-3 mt-2">
+                    <select
+                      value={selectedUser.role}
+                      onChange={(e) => {
+                        if (window.confirm('Are you sure you want to change this user\'s role?')) {
+                          updateRoleMutation.mutate({ userId: selectedUser._id, role: e.target.value })
+                        }
+                      }}
+                      className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      disabled={updateRoleMutation.isPending}
+                    >
+                      <option value="user">User</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                    {updateRoleMutation.isPending && (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                    )}
+                  </div>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="text-sm font-medium text-gray-600">Joined</label>

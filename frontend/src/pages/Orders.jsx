@@ -22,12 +22,15 @@ export default function Orders() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-3xl font-bold mb-8 flex items-center">
-          <Package className="h-8 w-8 mr-3" />
-          My Orders
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center justify-center">
+            <Package className="h-10 w-10 mr-3 text-blue-600" />
+            My Orders
+          </h1>
+          <p className="text-gray-600">Track and manage your book orders</p>
+        </div>
 
         {isLoading ? (
           <div className="flex justify-center py-12">
@@ -38,64 +41,77 @@ export default function Orders() {
             <p className="text-red-600">Error loading orders</p>
           </div>
         ) : orders.length === 0 ? (
-          <div className="text-center py-12">
-            <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No orders yet</h3>
-            <p className="text-gray-600 mb-4">Start shopping to see your orders here.</p>
-            <Link to="/books" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          <div className="bg-white rounded-2xl shadow-xl p-12 text-center">
+            <Package className="h-20 w-20 text-gray-300 mx-auto mb-6" />
+            <h3 className="text-2xl font-bold mb-4 text-gray-900">No orders yet</h3>
+            <p className="text-gray-600 mb-8 text-lg">Start your reading journey by exploring our collection.</p>
+            <Link to="/books" className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 shadow-lg transition-all">
               Browse Books
             </Link>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="grid gap-6">
             {orders.map(order => (
-              <div key={order._id} className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="font-semibold text-lg">Order #{order._id.slice(-8)}</h3>
-                    <p className="text-gray-600">
-                      {new Date(order.createdAt).toLocaleDateString('en-IN')}
+              <div key={order._id} className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-shadow">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6">
+                  <div className="mb-4 lg:mb-0">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-2xl font-bold text-gray-900">Order #{order._id.slice(-8)}</h3>
+                      <span className={`px-4 py-2 rounded-full text-sm font-bold ${getStatusColor(order.status)}`}>
+                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      </span>
+                    </div>
+                    <p className="text-gray-600 text-lg">
+                      Ordered on {new Date(order.createdAt).toLocaleDateString('en-IN', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      })}
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                    </span>
-                    <p className="text-lg font-bold mt-1">₹{order.total}</p>
+                    <p className="text-3xl font-bold text-blue-600">₹{order.total}</p>
+                    <p className="text-gray-500">{order.items.length} item{order.items.length > 1 ? 's' : ''}</p>
                   </div>
                 </div>
 
-                <div className="border-t pt-4">
-                  <h4 className="font-medium mb-2">Items ({order.items.length})</h4>
-                  <div className="space-y-2">
+                <div className="bg-gray-50 rounded-xl p-6 mb-6">
+                  <h4 className="text-xl font-bold mb-4 text-gray-900">Order Items</h4>
+                  <div className="space-y-3">
                     {order.items.map((item, index) => (
-                      <div key={index} className="flex justify-between items-center">
+                      <div key={index} className="flex justify-between items-center bg-white p-4 rounded-lg">
                         <div>
-                          <span className="font-medium">{item.bookId?.title || 'Book'}</span>
-                          <span className="text-gray-600 ml-2">x{item.quantity}</span>
+                          <span className="font-semibold text-lg text-gray-900">{item.bookId?.title || 'Book'}</span>
+                          <span className="text-blue-600 ml-3 font-medium">Qty: {item.quantity}</span>
                         </div>
-                        <span>₹{item.price * item.quantity}</span>
+                        <span className="text-xl font-bold text-gray-900">₹{item.price * item.quantity}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="border-t pt-4 mt-4">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="text-sm text-gray-600">Payment: {order.paymentInfo?.method}</p>
-                      <p className="text-sm text-gray-600">
-                        Shipping: {order.shippingAddress.city}, {order.shippingAddress.state}
-                      </p>
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-gray-700">Payment:</span>
+                      <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                        {order.paymentInfo?.method || 'N/A'}
+                      </span>
                     </div>
-                    <Link 
-                      to={`/orders/${order._id}`}
-                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center"
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Details
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-gray-700">Shipping to:</span>
+                      <span className="text-gray-600">
+                        {order.shippingAddress.city}, {order.shippingAddress.state}
+                      </span>
+                    </div>
                   </div>
+                  <Link 
+                    to={`/orders/${order._id}`}
+                    className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 flex items-center shadow-lg transition-all"
+                  >
+                    <Eye className="h-5 w-5 mr-2" />
+                    View Details
+                  </Link>
                 </div>
               </div>
             ))}

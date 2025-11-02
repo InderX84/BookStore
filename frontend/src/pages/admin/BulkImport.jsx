@@ -74,33 +74,36 @@ export default function BulkImport() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-3xl font-bold mb-8 flex items-center">
-          <Upload className="h-8 w-8 mr-3" />
-          Bulk Import
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center justify-center">
+            <Upload className="h-10 w-10 mr-3 text-blue-600" />
+            Bulk Import
+          </h1>
+          <p className="text-gray-600">Import books and categories in bulk using CSV or JSON</p>
+        </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-lg shadow-md mb-6">
-          <div className="border-b">
+        <div className="bg-white rounded-2xl shadow-xl mb-8">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-t-2xl">
             <nav className="flex">
               <button
                 onClick={() => setActiveTab('books')}
-                className={`px-6 py-3 font-medium ${
+                className={`px-8 py-4 font-bold text-lg rounded-tl-2xl transition-all ${
                   activeTab === 'books'
-                    ? 'border-b-2 border-blue-500 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'bg-white text-blue-600 shadow-lg'
+                    : 'text-white hover:bg-white/10'
                 }`}
               >
                 Import Books
               </button>
               <button
                 onClick={() => setActiveTab('categories')}
-                className={`px-6 py-3 font-medium ${
+                className={`px-8 py-4 font-bold text-lg transition-all ${
                   activeTab === 'categories'
-                    ? 'border-b-2 border-blue-500 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'bg-white text-blue-600 shadow-lg rounded-tr-2xl'
+                    : 'text-white hover:bg-white/10'
                 }`}
               >
                 Import Categories
@@ -108,48 +111,59 @@ export default function BulkImport() {
             </nav>
           </div>
 
-          <div className="p-6">
+          <div className="p-8">
             {/* Import Type Selection */}
-            <div className="mb-6">
-              <div className="flex gap-4">
-                <label className="flex items-center">
+            <div className="mb-8">
+              <h3 className="text-xl font-bold mb-4 text-gray-900">Choose Import Method</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <label className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                  importType === 'csv' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                }`}>
                   <input
                     type="radio"
                     value="csv"
                     checked={importType === 'csv'}
                     onChange={(e) => setImportType(e.target.value)}
-                    className="mr-2"
+                    className="mr-3"
                   />
-                  CSV File
+                  <div>
+                    <div className="font-semibold">CSV File</div>
+                    <div className="text-sm text-gray-600">Upload a CSV file</div>
+                  </div>
                 </label>
-                <label className="flex items-center">
+                <label className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                  importType === 'json' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                }`}>
                   <input
                     type="radio"
                     value="json"
                     checked={importType === 'json'}
                     onChange={(e) => setImportType(e.target.value)}
-                    className="mr-2"
+                    className="mr-3"
                   />
-                  JSON Data
+                  <div>
+                    <div className="font-semibold">JSON Data</div>
+                    <div className="text-sm text-gray-600">Paste JSON directly</div>
+                  </div>
                 </label>
               </div>
             </div>
 
             {/* Instructions */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-6 mb-8">
               <div className="flex items-start">
-                <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5 mr-3" />
+                <AlertCircle className="h-6 w-6 text-blue-600 mt-1 mr-4" />
                 <div>
-                  <h3 className="font-medium text-blue-900 mb-2">Import Instructions</h3>
-                  <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• Download the CSV template first</li>
-                    <li>• Fill in your data following the template format</li>
-                    <li>• Upload the completed CSV file</li>
+                  <h3 className="text-xl font-bold text-blue-900 mb-3">Import Instructions</h3>
+                  <ul className="text-blue-800 space-y-2">
+                    <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>Download the CSV template first</li>
+                    <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>Fill in your data following the template format</li>
+                    <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>Upload the completed CSV file</li>
                     {activeTab === 'books' && (
-                      <li>• Categories must exist in database before importing books</li>
+                      <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>Categories must exist in database before importing books</li>
                     )}
                     {activeTab === 'categories' && (
-                      <li>• Category names must be unique</li>
+                      <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>Category names must be unique</li>
                     )}
                   </ul>
                 </div>
@@ -157,23 +171,23 @@ export default function BulkImport() {
             </div>
 
             {/* Template Download */}
-            <div className="mb-6">
+            <div className="mb-8">
               <button
                 onClick={() => downloadTemplate(activeTab)}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center"
+                className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-4 rounded-xl font-bold hover:from-green-700 hover:to-green-800 flex items-center shadow-lg transition-all"
               >
-                <Download className="h-4 w-4 mr-2" />
+                <Download className="h-5 w-5 mr-3" />
                 Download {activeTab === 'books' ? 'Books' : 'Categories'} Template
               </button>
             </div>
 
             {/* Import Input */}
             {importType === 'csv' ? (
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <div className="mb-4">
+              <div className="border-2 border-dashed border-blue-300 rounded-2xl p-12 text-center bg-blue-50/50 hover:bg-blue-50 transition-colors">
+                <FileText className="h-16 w-16 text-blue-400 mx-auto mb-6" />
+                <div className="mb-6">
                   <label className="cursor-pointer">
-                    <span className="text-blue-600 hover:text-blue-700 font-medium">
+                    <span className="text-blue-600 hover:text-blue-700 font-bold text-lg">
                       Choose CSV file
                     </span>
                     <input
@@ -183,18 +197,18 @@ export default function BulkImport() {
                       className="hidden"
                     />
                   </label>
-                  <span className="text-gray-600"> or drag and drop</span>
+                  <span className="text-gray-600 text-lg"> or drag and drop</span>
                 </div>
                 {file && (
-                  <div className="text-sm text-gray-600 mb-4">
-                    Selected: {file.name}
+                  <div className="bg-white p-4 rounded-xl mb-4 inline-block">
+                    <span className="font-semibold text-green-600">Selected: {file.name}</span>
                   </div>
                 )}
-                <p className="text-xs text-gray-500">CSV files only</p>
+                <p className="text-gray-500">CSV files only</p>
               </div>
             ) : (
               <div>
-                <label className="block text-sm font-medium mb-2">Paste JSON Data:</label>
+                <label className="block text-lg font-bold mb-4 text-gray-900">Paste JSON Data:</label>
                 <textarea
                   value={jsonData}
                   onChange={(e) => setJsonData(e.target.value)}
@@ -202,20 +216,20 @@ export default function BulkImport() {
                     '[{"title":"Book Title","authors":["Author Name"],"description":"Description","price":999,"stock":50,"categories":["Fiction"]}]' :
                     '[{"name":"Category Name","description":"Category description"}]'
                   }
-                  rows={8}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 font-mono text-sm"
+                  rows={10}
+                  className="w-full border-2 border-gray-300 rounded-xl px-4 py-3 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             )}
 
             {/* Import Button */}
-            <div className="mt-6">
+            <div className="mt-8">
               <button
                 onClick={handleImport}
                 disabled={(importType === 'csv' && !file) || (importType === 'json' && !jsonData.trim()) || importMutation.isPending}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 flex items-center shadow-lg transition-all text-lg"
               >
-                <Upload className="h-4 w-4 mr-2" />
+                <Upload className="h-5 w-5 mr-3" />
                 {importMutation.isPending ? 'Importing...' : `Import ${activeTab === 'books' ? 'Books' : 'Categories'}`}
               </button>
             </div>
@@ -223,8 +237,8 @@ export default function BulkImport() {
         </div>
 
         {/* Sample Data Format */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold mb-4">Sample Data Format</h2>
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <h2 className="text-2xl font-bold mb-6 text-gray-900">Sample Data Format</h2>
           {activeTab === 'books' ? (
             <div className="overflow-x-auto">
               <div className="overflow-x-auto">

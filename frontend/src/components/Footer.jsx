@@ -3,64 +3,34 @@ import { BookOpen, Mail, Phone, MapPin } from 'lucide-react'
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-gradient-to-r from-gray-900 to-gray-800 text-white">
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="flex flex-col md:flex-row justify-between items-center">
           {/* Brand */}
-          <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <BookOpen className="h-8 w-8 text-blue-400" />
-              <span className="text-xl font-bold">BookStore</span>
-            </div>
-            <p className="text-gray-400 mb-4">
-              Your trusted partner for discovering and purchasing books online.
-            </p>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <div className="space-y-2">
-              <Link to="/" className="block text-gray-400 hover:text-white">Home</Link>
-              <Link to="/books" className="block text-gray-400 hover:text-white">Books</Link>
-              <Link to="/about" className="block text-gray-400 hover:text-white">About</Link>
-              <Link to="/contact" className="block text-gray-400 hover:text-white">Contact</Link>
+          <div className="flex items-center space-x-3 mb-6 md:mb-0">
+            <BookOpen className="h-8 w-8 text-blue-400" />
+            <div>
+              <span className="text-2xl font-bold">BookStore</span>
+              <p className="text-gray-400 text-sm">Discover. Read. Grow.</p>
             </div>
           </div>
 
-          {/* Customer Service */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Customer Service</h3>
-            <div className="space-y-2">
-              <Link to="/help" className="block text-gray-400 hover:text-white">Help Center</Link>
-              <Link to="/returns" className="block text-gray-400 hover:text-white">Returns</Link>
-              <Link to="/shipping" className="block text-gray-400 hover:text-white">Shipping Info</Link>
-              <Link to="/privacy" className="block text-gray-400 hover:text-white">Privacy Policy</Link>
-            </div>
+          {/* Links */}
+          <div className="flex flex-wrap justify-center gap-8 mb-6 md:mb-0">
+            <Link to="/" className="text-gray-300 hover:text-white transition-colors">Home</Link>
+            <Link to="/books" className="text-gray-300 hover:text-white transition-colors">Books</Link>
+            <Link to="/orders" className="text-gray-300 hover:text-white transition-colors">Orders</Link>
+            <Link to="/profile" className="text-gray-300 hover:text-white transition-colors">Profile</Link>
           </div>
 
-          {/* Contact Info */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
-            <div className="space-y-2">
-              <div className="flex items-center text-gray-400">
-                <Mail className="h-4 w-4 mr-2" />
-                <span>support@bookstore.com</span>
-              </div>
-              <div className="flex items-center text-gray-400">
-                <Phone className="h-4 w-4 mr-2" />
-                <span>+1 (555) 123-4567</span>
-              </div>
-              <div className="flex items-center text-gray-400">
-                <MapPin className="h-4 w-4 mr-2" />
-                <span>123 Book St, Reading City</span>
-              </div>
+          {/* Contact */}
+          <div className="text-center md:text-right">
+            <div className="flex items-center justify-center md:justify-end text-gray-400 mb-2">
+              <Mail className="h-4 w-4 mr-2" />
+              <span className="text-sm">support@bookstore.com</span>
             </div>
+            <p className="text-xs text-gray-500">&copy; 2025 BookStore. All rights reserved.</p>
           </div>
-        </div>
-
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2024 BookStore. All rights reserved.</p>
         </div>
       </div>
     </footer>
