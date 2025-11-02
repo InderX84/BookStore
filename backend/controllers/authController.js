@@ -107,3 +107,41 @@ export const logout = async (req, res) => {
 export const getCurrentUser = (req, res) => {
   res.json({ user: req.user });
 };
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, email, address } = req.body;
+    
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (address) user.address = address;
+
+    await user.save();
+    res.json({ message: 'Profile updated successfully', user: user.toJSON() });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    const user = await User.findById(req.user._id).select('+passwordHash');
+    if (!user || !(await user.comparePassword(currentPassword))) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    user.passwordHash = newPassword;
+    await user.save();
+    
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};

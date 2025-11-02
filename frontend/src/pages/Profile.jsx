@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Edit, Save, X, Lock, User, Mail } from 'lucide-react'
+import { Edit, Save, X, Lock, User, Mail, MapPin } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { authService } from '../services/api'
 import toast from 'react-hot-toast'
@@ -11,7 +11,14 @@ export default function Profile() {
   const [showPasswordForm, setShowPasswordForm] = useState(false)
   const [formData, setFormData] = useState({
     name: user?.name || '',
-    email: user?.email || ''
+    email: user?.email || '',
+    address: {
+      street: user?.address?.street || '',
+      city: user?.address?.city || '',
+      state: user?.address?.state || '',
+      zipCode: user?.address?.zipCode || '',
+      country: user?.address?.country || 'IN'
+    }
   })
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -95,7 +102,22 @@ export default function Profile() {
               <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Profile Information</h1>
                 <button
-                  onClick={() => setIsEditing(!isEditing)}
+                  onClick={() => {
+                    if (isEditing) {
+                      setFormData({
+                        name: user?.name || '',
+                        email: user?.email || '',
+                        address: {
+                          street: user?.address?.street || '',
+                          city: user?.address?.city || '',
+                          state: user?.address?.state || '',
+                          zipCode: user?.address?.zipCode || '',
+                          country: user?.address?.country || 'IN'
+                        }
+                      })
+                    }
+                    setIsEditing(!isEditing)
+                  }}
                   className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
                 >
                   {isEditing ? <X className="h-4 w-4" /> : <Edit className="h-4 w-4" />}
@@ -125,6 +147,62 @@ export default function Profile() {
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
                     />
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Address</h3>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Street Address</label>
+                      <input
+                        type="text"
+                        value={formData.address.street}
+                        onChange={(e) => setFormData({...formData, address: {...formData.address, street: e.target.value}})}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">City</label>
+                        <input
+                          type="text"
+                          value={formData.address.city}
+                          onChange={(e) => setFormData({...formData, address: {...formData.address, city: e.target.value}})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">State</label>
+                        <input
+                          type="text"
+                          value={formData.address.state}
+                          onChange={(e) => setFormData({...formData, address: {...formData.address, state: e.target.value}})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Pincode</label>
+                        <input
+                          type="text"
+                          value={formData.address.zipCode}
+                          onChange={(e) => setFormData({...formData, address: {...formData.address, zipCode: e.target.value}})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Country</label>
+                        <select
+                          value={formData.address.country}
+                          onChange={(e) => setFormData({...formData, address: {...formData.address, country: e.target.value}})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="IN">India</option>
+                          <option value="US">United States</option>
+                          <option value="CA">Canada</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                   
                   <button
@@ -165,6 +243,22 @@ export default function Profile() {
                       {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN') : 'N/A'}
                     </p>
                   </div>
+                  
+                  {user?.address && (
+                    <div className="flex items-start gap-3">
+                      <MapPin className="h-5 w-5 text-gray-400 mt-1" />
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Address</label>
+                        <div className="text-lg">
+                          {user.address.street && <p>{user.address.street}</p>}
+                          {(user.address.city || user.address.state) && (
+                            <p>{user.address.city}{user.address.city && user.address.state && ', '}{user.address.state}</p>
+                          )}
+                          {user.address.zipCode && <p>{user.address.zipCode}</p>}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

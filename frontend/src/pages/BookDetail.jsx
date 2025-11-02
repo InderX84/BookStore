@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ShoppingCart, Plus, Minus, Star, Heart, Share2 } from 'lucide-react'
+import { ShoppingCart, Plus, Minus, Star, Heart, Share2, Zap } from 'lucide-react'
 import { booksService } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import ReviewForm from '../components/ReviewForm'
@@ -11,6 +11,7 @@ import toast from 'react-hot-toast'
 export default function BookDetail() {
   const { id } = useParams()
   const { isAuthenticated } = useAuth()
+  const navigate = useNavigate()
   const [quantity, setQuantity] = useState(1)
 
   const { data: book, isLoading } = useQuery({
@@ -42,6 +43,16 @@ export default function BookDetail() {
     
     localStorage.setItem('cart', JSON.stringify(cartItems))
     toast.success('Added to cart!')
+  }
+
+  const buyNow = () => {
+    if (!isAuthenticated) {
+      toast.error('Please login to purchase')
+      return
+    }
+    
+    addToCart()
+    navigate('/checkout')
   }
 
   if (isLoading) {
@@ -145,6 +156,15 @@ export default function BookDetail() {
                     Add to Cart
                   </button>
                 </div>
+                
+                <button
+                  onClick={buyNow}
+                  disabled={book.stock === 0}
+                  className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 px-8 rounded-xl font-bold hover:from-orange-600 hover:to-orange-700 disabled:opacity-50 flex items-center justify-center shadow-lg transition-all"
+                >
+                  <Zap className="h-5 w-5 mr-2" />
+                  Buy Now
+                </button>
                 
                 <div className="flex gap-3">
                   <button className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">

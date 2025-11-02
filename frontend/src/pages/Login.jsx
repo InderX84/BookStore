@@ -1,18 +1,37 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { Eye, EyeOff, BookOpen, ArrowRight } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../context/AuthContext'
+import { publicService } from '../services/api'
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [stats, setStats] = useState({ totalBooks: '10K+', totalUsers: '5K+', avgRating: '4.8⭐' })
   const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   
   const from = location.state?.from?.pathname || '/'
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await publicService.getStats()
+        const data = response.data
+        setStats({
+          totalBooks: data.totalBooks > 1000 ? `${Math.floor(data.totalBooks/1000)}K+` : data.totalBooks,
+          totalUsers: data.totalUsers > 1000 ? `${Math.floor(data.totalUsers/1000)}K+` : data.totalUsers,
+          avgRating: `${data.avgRating || 4.8}⭐`
+        })
+      } catch (error) {
+        console.error('Failed to fetch stats:', error)
+      }
+    }
+    fetchStats()
+  }, [])
 
   const { register, handleSubmit, formState: { errors } } = useForm()
 
@@ -30,7 +49,7 @@ export default function Login() {
   }
 
   return (
-    <div className="h-screen w-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <div className="h-screen w-screen bg-gray-100 flex items-center justify-center overflow-hidden">
       <div className="max-w-4xl w-full">
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
           <div className="flex flex-col lg:flex-row">
@@ -112,14 +131,6 @@ export default function Login() {
                     </Link>
                   </p>
                 </div>
-
-                <div className="mt-6 p-4 bg-gray-50 rounded-xl">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Demo Accounts:</p>
-                  <div className="text-xs text-gray-600 space-y-1">
-                    <div>Admin: admin@bookstore.com / admin123</div>
-                    <div>User: john@example.com / password123</div>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -132,15 +143,15 @@ export default function Login() {
                 </p>
                 <div className="grid grid-cols-3 gap-6 text-center">
                   <div>
-                    <div className="text-2xl font-bold">10K+</div>
+                    <div className="text-2xl font-bold">{stats.totalBooks}</div>
                     <div className="text-sm text-blue-200">Books</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">5K+</div>
+                    <div className="text-2xl font-bold">{stats.totalUsers}</div>
                     <div className="text-sm text-blue-200">Readers</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">4.8⭐</div>
+                    <div className="text-2xl font-bold">{stats.avgRating}</div>
                     <div className="text-sm text-blue-200">Rating</div>
                   </div>
                 </div>

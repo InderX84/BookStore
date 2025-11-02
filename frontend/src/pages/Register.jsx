@@ -1,15 +1,33 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { Eye, EyeOff, BookOpen, UserPlus } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../context/AuthContext'
+import { publicService } from '../services/api'
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [stats, setStats] = useState({ totalBooks: '10,000+', totalUsers: '5,000+' })
   const { register: registerUser } = useAuth()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await publicService.getStats()
+        const data = response.data
+        setStats({
+          totalBooks: data.totalBooks?.toLocaleString() + '+' || '10,000+',
+          totalUsers: data.totalUsers?.toLocaleString() + '+' || '5,000+'
+        })
+      } catch (error) {
+        console.error('Failed to fetch stats:', error)
+      }
+    }
+    fetchStats()
+  }, [])
 
   const { register, handleSubmit, formState: { errors }, watch } = useForm()
   const password = watch('password')
@@ -28,7 +46,7 @@ export default function Register() {
   }
 
   return (
-    <div className="h-screen w-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <div className="h-screen w-screen bg-gray-100 flex items-center justify-center overflow-hidden">
       <div className="max-w-4xl w-full">
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
           <div className="flex flex-col lg:flex-row">
@@ -42,7 +60,7 @@ export default function Register() {
                 <div className="space-y-4">
                   <div className="flex items-center text-green-100">
                     <div className="w-2 h-2 bg-green-300 rounded-full mr-3"></div>
-                    <span>Access to 10,000+ books</span>
+                    <span>Access to {stats.totalBooks} books</span>
                   </div>
                   <div className="flex items-center text-green-100">
                     <div className="w-2 h-2 bg-green-300 rounded-full mr-3"></div>
