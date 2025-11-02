@@ -1,31 +1,31 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
-import { Suspense } from 'react'
+import { lazy, Suspense } from 'react'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ProtectedRoute from './components/ProtectedRoute'
 import ErrorBoundary from './components/ErrorBoundary'
 
-// Pages
-import Home from './pages/Home'
-import Books from './pages/Books'
-import BookDetail from './pages/BookDetail'
-import Cart from './pages/Cart'
-import Checkout from './pages/Checkout'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Profile from './pages/Profile'
-import Orders from './pages/Orders'
-import OrderDetail from './pages/OrderDetail'
-import OrderSuccess from './pages/OrderSuccess'
-import Invoice from './pages/Invoice'
-import AdminDashboard from './pages/admin/Dashboard'
-import AdminBooks from './pages/admin/Books'
-import AdminOrders from './pages/admin/Orders'
-import AdminUsers from './pages/admin/Users'
-import AdminCategories from './pages/admin/Categories'
-import BulkImport from './pages/admin/BulkImport'
-import Analytics from './pages/admin/Analytics'
-import NotFound from './pages/NotFound'
+// Lazy loaded pages
+const Home = lazy(() => import('./pages/Home'))
+const Books = lazy(() => import('./pages/Books'))
+const BookDetail = lazy(() => import('./pages/BookDetail'))
+const Cart = lazy(() => import('./pages/Cart'))
+const Checkout = lazy(() => import('./pages/Checkout'))
+const Login = lazy(() => import('./pages/Login'))
+const Register = lazy(() => import('./pages/Register'))
+const Profile = lazy(() => import('./pages/Profile'))
+const Orders = lazy(() => import('./pages/Orders'))
+const OrderDetail = lazy(() => import('./pages/OrderDetail'))
+const OrderSuccess = lazy(() => import('./pages/OrderSuccess'))
+const Invoice = lazy(() => import('./pages/Invoice'))
+const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'))
+const AdminBooks = lazy(() => import('./pages/admin/Books'))
+const AdminOrders = lazy(() => import('./pages/admin/Orders'))
+const AdminUsers = lazy(() => import('./pages/admin/Users'))
+const AdminCategories = lazy(() => import('./pages/admin/Categories'))
+const BulkImport = lazy(() => import('./pages/admin/BulkImport'))
+const Analytics = lazy(() => import('./pages/admin/Analytics'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 
 function App() {
   const location = useLocation()
@@ -36,7 +36,12 @@ function App() {
       <div className="min-h-screen flex flex-col">
         {!hideNavFooter && <Navbar />}
         <main className={hideNavFooter ? '' : 'flex-1'}>
-          <Routes>
+          <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            </div>
+          }>
+            <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/books" element={<Books />} />
           <Route path="/books/:id" element={<BookDetail />} />
@@ -118,7 +123,8 @@ function App() {
           } />
           
           <Route path="*" element={<NotFound />} />
-          </Routes>
+            </Routes>
+          </Suspense>
         </main>
         {!hideNavFooter && <Footer />}
       </div>
