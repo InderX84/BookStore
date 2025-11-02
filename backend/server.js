@@ -25,14 +25,14 @@ if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 }
 
+// CORS first
+app.use(cors({
+  origin: '*',
+  credentials: false
+}));
+
 // Security middleware
 app.use(helmet());
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yourdomain.com', 'https://bookstore-frontend.vercel.app'] 
-    : ['http://localhost:3000', 'http://localhost:5173'],
-  credentials: true
-}));
 
 // Rate limiting
 const limiter = rateLimit({
