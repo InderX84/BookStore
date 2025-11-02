@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { BookOpen, ShoppingCart, User, Menu, X, LogOut } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
@@ -6,9 +6,18 @@ import { useCart } from '../context/CartContext'
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const { user, isAuthenticated, logout } = useAuth()
   const { itemCount } = useCart()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const handleLogout = async () => {
     await logout()
@@ -16,25 +25,39 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg sticky top-0 z-50">
+    <nav className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled 
+          ? 'bg-white/95 backdrop-blur-md shadow-lg' 
+          : 'bg-transparent md:bg-transparent bg-black/30 backdrop-blur-sm md:backdrop-blur-none'
+      }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3">
-            <div className="bg-white p-2 rounded-lg">
+            <div className={`p-2 rounded-lg transition-colors ${
+              scrolled ? 'bg-white' : 'bg-white/90'
+            }`}>
               <BookOpen className="h-6 w-6 text-blue-600" />
             </div>
-            <span className="text-2xl font-bold text-white">BookStore</span>
+            <span className={`text-2xl font-bold transition-colors ${
+              scrolled ? 'text-gray-900' : 'text-white md:text-white text-gray-900'
+            }`}>BookStore</span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link to="/" className="text-white hover:text-blue-200 px-3 py-2 rounded-md transition-colors">Home</Link>
-            <Link to="/books" className="text-white hover:text-blue-200 px-3 py-2 rounded-md transition-colors">Books</Link>
+            <Link to="/" className={`px-3 py-2 rounded-md transition-colors ${
+              scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white md:text-white text-gray-900 hover:text-blue-200 md:hover:text-blue-200 hover:text-blue-600'
+            }`}>Home</Link>
+            <Link to="/books" className={`px-3 py-2 rounded-md transition-colors ${
+              scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white md:text-white text-gray-900 hover:text-blue-200 md:hover:text-blue-200 hover:text-blue-600'
+            }`}>Books</Link>
             
             {isAuthenticated ? (
               <>
-                <Link to="/cart" className="text-white hover:text-blue-200 flex items-center px-3 py-2 rounded-md transition-colors relative">
+                <Link to="/cart" className={`flex items-center px-3 py-2 rounded-md transition-colors relative ${
+                  scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white md:text-white text-gray-900 hover:text-blue-200 md:hover:text-blue-200 hover:text-blue-600'
+                }`}>
                   <ShoppingCart className="h-5 w-5 mr-1" />
                   Cart
                   {itemCount > 0 && (
@@ -43,10 +66,14 @@ export default function Navbar() {
                     </span>
                   )}
                 </Link>
-                <Link to="/orders" className="text-white hover:text-blue-200 px-3 py-2 rounded-md transition-colors">Orders</Link>
+                <Link to="/orders" className={`px-3 py-2 rounded-md transition-colors ${
+                  scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white md:text-white text-gray-900 hover:text-blue-200 md:hover:text-blue-200 hover:text-blue-600'
+                }`}>Orders</Link>
 
                 <div className="relative group">
-                  <button className="flex items-center text-white hover:text-blue-200 px-3 py-2 rounded-md transition-colors">
+                  <button className={`flex items-center px-3 py-2 rounded-md transition-colors ${
+                    scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white md:text-white text-gray-900 hover:text-blue-200 md:hover:text-blue-200 hover:text-blue-600'
+                  }`}>
                     <div className="bg-white p-1 rounded-full mr-2">
                       <User className="h-4 w-4 text-blue-600" />
                     </div>
@@ -75,8 +102,14 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                <Link to="/login" className="text-white hover:text-blue-200 px-3 py-2 rounded-md transition-colors">Login</Link>
-                <Link to="/register" className="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 font-medium transition-colors">
+                <Link to="/login" className={`px-3 py-2 rounded-md transition-colors ${
+                  scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white md:text-white text-gray-900 hover:text-blue-200 md:hover:text-blue-200 hover:text-blue-600'
+                }`}>Login</Link>
+                <Link to="/register" className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  scrolled 
+                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                    : 'bg-white text-blue-600 hover:bg-blue-50'
+                }`}>
                   Sign Up
                 </Link>
               </>
@@ -86,7 +119,9 @@ export default function Navbar() {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 text-white hover:text-blue-200"
+            className={`md:hidden p-2 transition-colors ${
+              scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-gray-900 hover:text-blue-600'
+            }`}
           >
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -94,14 +129,22 @@ export default function Navbar() {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden py-4 border-t border-blue-500">
+          <div className={`md:hidden py-4 border-t ${
+            scrolled ? 'border-gray-200 bg-white/95 backdrop-blur-md' : 'border-white/20 bg-black/40 backdrop-blur-md'
+          }`}>
             <div className="flex flex-col space-y-2">
-              <Link to="/" className="text-white hover:text-blue-200 px-3 py-2 rounded-md">Home</Link>
-              <Link to="/books" className="text-white hover:text-blue-200 px-3 py-2 rounded-md">Books</Link>
+              <Link to="/" className={`px-3 py-2 rounded-md transition-colors ${
+                scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-200'
+              }`}>Home</Link>
+              <Link to="/books" className={`px-3 py-2 rounded-md transition-colors ${
+                scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-200'
+              }`}>Books</Link>
               
               {isAuthenticated ? (
                 <>
-                  <Link to="/cart" className="text-white hover:text-blue-200 px-3 py-2 rounded-md relative">
+                  <Link to="/cart" className={`px-3 py-2 rounded-md relative transition-colors ${
+                    scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                  }`}>
                     Cart
                     {itemCount > 0 && (
                       <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
@@ -109,27 +152,51 @@ export default function Navbar() {
                       </span>
                     )}
                   </Link>
-                  <Link to="/orders" className="text-white hover:text-blue-200 px-3 py-2 rounded-md">Orders</Link>
+                  <Link to="/orders" className={`px-3 py-2 rounded-md transition-colors ${
+                    scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                  }`}>Orders</Link>
                   {user?.role === 'admin' && (
                     <>
-                      <Link to="/admin" className="text-white hover:text-blue-200 px-3 py-2 rounded-md">Admin Dashboard</Link>
-                      <Link to="/admin/books" className="text-white hover:text-blue-200 px-3 py-2 rounded-md">Manage Books</Link>
-                      <Link to="/admin/categories" className="text-white hover:text-blue-200 px-3 py-2 rounded-md">Manage Categories</Link>
-                      <Link to="/admin/bulk-import" className="text-white hover:text-blue-200 px-3 py-2 rounded-md">Bulk Import</Link>
-                      <Link to="/admin/analytics" className="text-white hover:text-blue-200 px-3 py-2 rounded-md">Analytics</Link>
-                      <Link to="/admin/orders" className="text-white hover:text-blue-200 px-3 py-2 rounded-md">Manage Orders</Link>
-                      <Link to="/admin/users" className="text-white hover:text-blue-200 px-3 py-2 rounded-md">Manage Users</Link>
+                      <Link to="/admin" className={`px-3 py-2 rounded-md transition-colors ${
+                        scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                      }`}>Admin Dashboard</Link>
+                      <Link to="/admin/books" className={`px-3 py-2 rounded-md transition-colors ${
+                        scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                      }`}>Manage Books</Link>
+                      <Link to="/admin/categories" className={`px-3 py-2 rounded-md transition-colors ${
+                        scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                      }`}>Manage Categories</Link>
+                      <Link to="/admin/bulk-import" className={`px-3 py-2 rounded-md transition-colors ${
+                        scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                      }`}>Bulk Import</Link>
+                      <Link to="/admin/analytics" className={`px-3 py-2 rounded-md transition-colors ${
+                        scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                      }`}>Analytics</Link>
+                      <Link to="/admin/orders" className={`px-3 py-2 rounded-md transition-colors ${
+                        scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                      }`}>Manage Orders</Link>
+                      <Link to="/admin/users" className={`px-3 py-2 rounded-md transition-colors ${
+                        scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                      }`}>Manage Users</Link>
                     </>
                   )}
-                  <Link to="/profile" className="text-white hover:text-blue-200 px-3 py-2 rounded-md">Profile</Link>
-                  <button onClick={handleLogout} className="text-left text-white hover:text-blue-200 px-3 py-2 rounded-md">
+                  <Link to="/profile" className={`px-3 py-2 rounded-md transition-colors ${
+                    scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                  }`}>Profile</Link>
+                  <button onClick={handleLogout} className={`text-left px-3 py-2 rounded-md transition-colors ${
+                    scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                  }`}>
                     Logout
                   </button>
                 </>
               ) : (
                 <>
-                  <Link to="/login" className="text-white hover:text-blue-200 px-3 py-2 rounded-md">Login</Link>
-                  <Link to="/register" className="text-white hover:text-blue-200 px-3 py-2 rounded-md">Sign Up</Link>
+                  <Link to="/login" className={`px-3 py-2 rounded-md transition-colors ${
+                    scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                  }`}>Login</Link>
+                  <Link to="/register" className={`px-3 py-2 rounded-md transition-colors ${
+                    scrolled ? 'text-gray-700 hover:text-blue-600' : 'text-white hover:text-blue-200'
+                  }`}>Sign Up</Link>
                 </>
               )}
             </div>

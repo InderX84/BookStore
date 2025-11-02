@@ -42,7 +42,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white min-h-screen flex items-center relative overflow-hidden">
+      <section className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white min-h-screen flex items-center relative overflow-hidden -mt-16 pt-16">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
