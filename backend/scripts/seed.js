@@ -140,14 +140,20 @@ const sampleUsers = [
 
 async function seedDatabase() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI, {
+      writeConcern: { w: 1 }
+    });
     console.log('Connected to MongoDB');
 
     // Clear existing data
-    await User.deleteMany({});
-    await Book.deleteMany({});
-    await Category.deleteMany({});
-    console.log('Cleared existing data');
+    try {
+      await User.deleteMany({});
+      await Book.deleteMany({});
+      await Category.deleteMany({});
+      console.log('Cleared existing data');
+    } catch (clearError) {
+      console.log('Note: Could not clear existing data, continuing with seeding...');
+    }
 
     // Create users
     for (const userData of sampleUsers) {

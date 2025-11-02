@@ -13,7 +13,7 @@ export const loginSchema = Joi.object({
 
 export const bookSchema = Joi.object({
   title: Joi.string().max(200).required(),
-  authors: Joi.array().items(Joi.string().trim()).min(1).required(),
+  authors: Joi.array().items(Joi.string()).min(1).required(),
   description: Joi.string().max(2000).required(),
   isbn: Joi.string().allow('', null).optional(),
   isbn13: Joi.string().allow('', null).optional(),
@@ -29,7 +29,7 @@ export const bookSchema = Joi.object({
     value: Joi.number().min(0).optional(),
     unit: Joi.string().valid('g', 'kg', 'oz', 'lb').default('g')
   }).optional(),
-  categories: Joi.array().items(Joi.string().valid('Fiction', 'Non-Fiction', 'Mystery', 'Romance', 'Sci-Fi', 'Fantasy', 'Biography', 'History', 'Science', 'Technology', 'Business', 'Self-Help', 'Children', 'Young Adult', 'Poetry', 'Drama', 'Punjabi Literature', 'Indian Poetry', 'Partition Literature')).min(1).required(),
+  categories: Joi.array().items(Joi.string()).min(1).required(),
   price: Joi.number().min(0).required(),
   currency: Joi.string().valid('INR', 'USD', 'EUR', 'GBP').default('INR'),
   stock: Joi.number().min(0).required(),
@@ -41,7 +41,7 @@ export const bookSchema = Joi.object({
   publisher: Joi.string().allow('', null).optional(),
   language: Joi.string().valid('English', 'Hindi', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Chinese', 'Japanese', 'Korean', 'Arabic', 'Bengali', 'Telugu', 'Marathi', 'Tamil', 'Gujarati', 'Urdu', 'Kannada', 'Malayalam', 'Punjabi').default('English'),
   ageGroup: Joi.string().valid('Children (0-12)', 'Young Adult (13-17)', 'Adult (18+)', 'All Ages').allow('', null).optional(),
-  tags: Joi.array().items(Joi.string().trim()).optional(),
+  tags: Joi.array().items(Joi.string()).optional(),
   awards: Joi.array().items(Joi.object({
     name: Joi.string().required(),
     year: Joi.number().min(1900).max(new Date().getFullYear()).required()

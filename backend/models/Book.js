@@ -56,7 +56,7 @@ const bookSchema = new mongoose.Schema({
   },
   categories: [{
     type: String,
-    enum: ['Fiction', 'Non-Fiction', 'Mystery', 'Romance', 'Sci-Fi', 'Fantasy', 'Biography', 'History', 'Science', 'Technology', 'Business', 'Self-Help', 'Children', 'Young Adult', 'Poetry', 'Drama', 'Punjabi Literature', 'Indian Poetry', 'Partition Literature']
+    required: true
   }],
   price: {
     type: Number,
