@@ -22,7 +22,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white py-20">
+      <section className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white h-screen flex items-center">
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -141,35 +141,35 @@ export default function Home() {
             <div className="flex justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             </div>
-          ) : (
+          ) : books?.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {books?.map(book => (
+              {books.slice(0, 8).map(book => (
                 <Link
                   key={book._id}
                   to={`/books/${book._id}`}
-                  className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-4 group"
+                  className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-4 group hover:-translate-y-1"
                 >
-                  <div className="aspect-[3/4] bg-gray-200 rounded mb-4 overflow-hidden">
+                  <div className="aspect-[3/4] bg-gray-200 rounded-lg mb-4 overflow-hidden">
                     <img
                       src={book.images?.[0]?.url || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=400&fit=crop'}
                       alt={book.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2">{book.title}</h3>
-                  <p className="text-gray-600 text-sm mb-2">{book.authors.join(', ')}</p>
+                  <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 text-sm">{book.title}</h3>
+                  <p className="text-gray-600 text-xs mb-2">{book.authors?.join(', ')}</p>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-blue-600">₹{book.price.toFixed(2)}</span>
+                      <span className="text-lg font-bold text-blue-600">₹{book.price?.toFixed(2)}</span>
                       {book.ratingAvg > 0 && (
                         <div className="flex items-center text-yellow-500">
                           <Star className="h-4 w-4 fill-current" />
-                          <span className="text-sm ml-1">{book.ratingAvg}</span>
+                          <span className="text-sm ml-1">{book.ratingAvg.toFixed(1)}</span>
                         </div>
                       )}
                     </div>
                     {(book.featured || book.bestseller) && (
-                      <div className="flex gap-1">
+                      <div className="flex gap-1 flex-wrap">
                         {book.featured && <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">Featured</span>}
                         {book.bestseller && <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Bestseller</span>}
                       </div>
@@ -177,6 +177,10 @@ export default function Home() {
                   </div>
                 </Link>
               ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No featured books available</p>
             </div>
           )}
         </div>

@@ -47,6 +47,7 @@ export default function AdminCategories() {
       toast.success('Category deleted')
     },
     onError: (error) => {
+      console.log('Delete error:', error.response?.data)
       toast.error(error.response?.data?.message || 'Failed to delete category')
     }
   })
@@ -79,8 +80,9 @@ export default function AdminCategories() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Categories</h1>
         <button 
           onClick={() => setShowForm(true)}
@@ -92,18 +94,21 @@ export default function AdminCategories() {
       </div>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">
-                {editingCategory ? 'Edit Category' : 'Add Category'}
-              </h2>
-              <button onClick={resetForm}>
-                <X className="h-5 w-5" />
-              </button>
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white p-6 rounded-t-2xl">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold">
+                  {editingCategory ? 'Edit Category' : 'Add Category'}
+                </h2>
+                <button onClick={resetForm} className="text-white hover:text-gray-200">
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
             </div>
+            <div className="p-6">
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form id="category-form" onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Name *</label>
                 <input
@@ -127,29 +132,31 @@ export default function AdminCategories() {
                 />
               </div>
 
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="submit"
-                  disabled={createMutation.isPending || updateMutation.isPending}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center disabled:opacity-50"
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  {editingCategory ? 'Update' : 'Create'}
-                </button>
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
-                >
-                  Cancel
-                </button>
-              </div>
             </form>
+            </div>
+            <div className="bg-gray-50 px-6 py-4 rounded-b-2xl flex gap-3">
+              <button
+                type="submit"
+                form="category-form"
+                disabled={createMutation.isPending || updateMutation.isPending}
+                className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 flex items-center disabled:opacity-50 font-medium"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {editingCategory ? 'Update' : 'Create'}
+              </button>
+              <button
+                type="button"
+                onClick={resetForm}
+                className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 font-medium"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         {isLoading ? (
           <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -157,7 +164,7 @@ export default function AdminCategories() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
             {categories?.map(category => (
-              <div key={category._id} className="border rounded-lg p-4">
+              <div key={category._id} className="border rounded-xl p-4 hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="font-semibold">{category.name}</h3>
                   <div className="flex gap-1">
@@ -185,6 +192,7 @@ export default function AdminCategories() {
             ))}
           </div>
         )}
+        </div>
       </div>
     </div>
   )

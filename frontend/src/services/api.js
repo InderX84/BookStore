@@ -114,6 +114,7 @@ export const adminService = {
   bulkImport: (type, formData) => api.post(`/admin/bulk-import/${type}`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
+  bulkImportJSON: (type, data) => api.post(`/admin/bulk-import-json/${type}`, { data }),
   downloadTemplate: (type) => api.get(`/admin/template/${type}`, {
     responseType: 'blob'
   })

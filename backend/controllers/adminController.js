@@ -44,12 +44,7 @@ export const getAllOrders = async (req, res) => {
     
     const total = await Order.countDocuments(query);
     
-    res.json({
-      orders,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-      total
-    });
+    res.json(orders);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }

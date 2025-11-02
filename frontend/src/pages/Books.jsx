@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Search, Filter, X } from 'lucide-react'
+import { Search, Filter, X, Star } from 'lucide-react'
 import { booksService } from '../services/api'
 
 export default function Books() {
@@ -43,9 +43,12 @@ export default function Books() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto px-4">
-        <h1 className="text-3xl font-bold mb-8">Books</h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Discover Amazing Books</h1>
+          <p className="text-gray-600 text-lg">Find your next favorite read from our curated collection</p>
+        </div>
         
         {/* Search & Filters */}
         <div className="mb-8 space-y-4">
@@ -70,7 +73,7 @@ export default function Books() {
           </div>
 
           {showFilters && (
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-xl shadow-lg p-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Category</label>
@@ -151,28 +154,36 @@ export default function Books() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
               {data?.books?.map(book => (
                 <Link
                   key={book._id}
                   to={`/books/${book._id}`}
-                  className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-4"
+                  className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 group hover:-translate-y-2"
                 >
-                  <div className="aspect-[3/4] bg-gray-200 rounded mb-4">
+                  <div className="aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl mb-4 overflow-hidden">
                     <img
                       src={book.images?.[0]?.url || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=400&fit=crop'}
                       alt={book.title}
-                      className="w-full h-full object-cover rounded"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2">{book.title}</h3>
-                  <p className="text-sm text-gray-600 mb-2">{book.authors.join(', ')}</p>
-                  <div className="space-y-2">
-                    <p className="text-blue-600 font-bold">₹{book.price.toFixed(2)}</p>
+                  <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 text-lg">{book.title}</h3>
+                  <p className="text-sm text-gray-600 mb-3">{book.authors.join(', ')}</p>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-blue-600 font-bold text-xl">₹{book.price.toFixed(2)}</p>
+                      {book.ratingAvg > 0 && (
+                        <div className="flex items-center text-yellow-500">
+                          <Star className="h-4 w-4 fill-current" />
+                          <span className="text-sm ml-1 font-medium">{book.ratingAvg.toFixed(1)}</span>
+                        </div>
+                      )}
+                    </div>
                     {(book.featured || book.bestseller) && (
-                      <div className="flex gap-1">
-                        {book.featured && <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">Featured</span>}
-                        {book.bestseller && <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Bestseller</span>}
+                      <div className="flex gap-2 flex-wrap">
+                        {book.featured && <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">Featured</span>}
+                        {book.bestseller && <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">Bestseller</span>}
                       </div>
                     )}
                   </div>
@@ -182,7 +193,7 @@ export default function Books() {
 
             {/* Pagination */}
             {data?.totalPages > 1 && (
-              <div className="flex justify-center gap-2">
+              <div className="flex justify-center gap-3">
                 {Array.from({ length: data.totalPages }, (_, i) => i + 1).map(pageNum => (
                   <button
                     key={pageNum}
@@ -191,10 +202,10 @@ export default function Books() {
                       params.set('page', pageNum.toString())
                       setSearchParams(params)
                     }}
-                    className={`px-4 py-2 rounded ${
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                       pageNum === page
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : 'bg-white text-gray-700 hover:bg-blue-50 shadow-md'
                     }`}
                   >
                     {pageNum}

@@ -23,6 +23,8 @@ router.delete('/categories/:id', authenticate, authorize('admin'), categoryContr
 // Bulk import routes
 router.post('/bulk-import/books', authenticate, authorize('admin'), upload.single('file'), bulkImportController.bulkImportBooks);
 router.post('/bulk-import/categories', authenticate, authorize('admin'), upload.single('file'), bulkImportController.bulkImportCategories);
+router.post('/bulk-import-json/books', authenticate, authorize('admin'), bulkImportController.bulkImportBooksJSON);
+router.post('/bulk-import-json/categories', authenticate, authorize('admin'), bulkImportController.bulkImportCategoriesJSON);
 router.get('/template/:type', authenticate, authorize('admin'), bulkImportController.downloadTemplate);
 
 export default router;

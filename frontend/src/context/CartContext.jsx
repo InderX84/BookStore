@@ -2,10 +2,11 @@ import { createContext, useContext, useReducer, useEffect } from 'react'
 
 const CartContext = createContext()
 
+const cartItems = JSON.parse(localStorage.getItem('cart')) || []
 const initialState = {
-  items: JSON.parse(localStorage.getItem('cart')) || [],
-  total: 0,
-  itemCount: 0
+  items: cartItems,
+  total: cartItems.reduce((total, item) => total + (item.price * item.quantity), 0),
+  itemCount: cartItems.reduce((total, item) => total + item.quantity, 0)
 }
 
 function cartReducer(state, action) {

@@ -3,13 +3,6 @@ import fs from 'fs';
 import Book from '../models/Book.js';
 import Category from '../models/Category.js';
 
-const VALID_CATEGORIES = [
-  'Fiction', 'Non-Fiction', 'Mystery', 'Romance', 'Sci-Fi', 'Fantasy',
-  'Biography', 'History', 'Science', 'Technology', 'Business', 'Self-Help',
-  'Children', 'Young Adult', 'Poetry', 'Drama', 'Punjabi Literature',
-  'Indian Poetry', 'Partition Literature'
-];
-
 export const bulkImportBooks = async (req, res) => {
   try {
     if (!req.file) {
@@ -49,15 +42,18 @@ export const bulkImportBooks = async (req, res) => {
               throw new Error('Valid stock quantity is required');
             }
             
-            // Validate category
-            let categories = ['Fiction']; // default
+            // Validate category against database
+            let categories = [];
             if (row.categories?.trim()) {
               const categoryName = row.categories.trim();
-              if (VALID_CATEGORIES.includes(categoryName)) {
+              const categoryExists = await Category.findOne({ name: categoryName });
+              if (categoryExists) {
                 categories = [categoryName];
               } else {
-                throw new Error(`Invalid category: ${categoryName}. Valid categories are: ${VALID_CATEGORIES.join(', ')}`);
+                throw new Error(`Category '${categoryName}' does not exist. Please create it first.`);
               }
+            } else {
+              throw new Error('Category is required');
             }
             
             const bookData = {
@@ -68,24 +64,17 @@ export const bulkImportBooks = async (req, res) => {
               stock: stock,
               categories: categories,
               currency: 'INR',
-              availability: row.availability?.trim() || 'In Stock',
               format: row.format?.trim() || 'Paperback',
-              language: row.language?.trim() || 'English'
+              language: row.language?.trim() || 'English',
+              availability: 'In Stock'
             };
 
             // Optional fields
             if (row.publisher?.trim()) bookData.publisher = row.publisher.trim();
             if (row.pages && !isNaN(parseInt(row.pages))) bookData.pages = parseInt(row.pages);
             if (row.isbn?.trim()) bookData.isbn = row.isbn.trim();
-            if (row.isbn13?.trim()) bookData.isbn13 = row.isbn13.trim();
-            if (row.edition?.trim()) bookData.edition = row.edition.trim();
-            if (row.publishedDate?.trim()) bookData.publishedDate = new Date(row.publishedDate.trim());
-            if (row.ageGroup?.trim()) bookData.ageGroup = row.ageGroup.trim();
-            if (row.tags?.trim()) bookData.tags = row.tags.split(',').map(t => t.trim()).filter(t => t);
-            if (row.discount && !isNaN(parseFloat(row.discount))) bookData.discount = parseFloat(row.discount);
-            if (row.originalPrice && !isNaN(parseFloat(row.originalPrice))) bookData.originalPrice = parseFloat(row.originalPrice);
-            if (row.featured === 'true' || row.featured === '1') bookData.featured = true;
-            if (row.bestseller === 'true' || row.bestseller === '1') bookData.bestseller = true;
+            if (row.featured === 'true') bookData.featured = true;
+            if (row.bestseller === 'true') bookData.bestseller = true;
 
             await Book.create(bookData);
             imported++;
@@ -188,10 +177,9 @@ export const downloadTemplate = (req, res) => {
   let filename = '';
 
   if (type === 'books') {
-    csvContent = 'title,authors,description,price,stock,categories,publisher,pages,language,format,isbn,isbn13,edition,publishedDate,ageGroup,tags,discount,originalPrice,availability,featured,bestseller\n';
-    csvContent += 'The Great Indian Novel,Shashi Tharoor,A satirical novel about Indian politics and society,899,25,Fiction,Penguin Books,432,English,Paperback,9780140107586,9780140107586,1st,1989-01-01,Adult (18+),"classic,indian-literature",10,999,In Stock,true,false\n';
-    csvContent += 'Wings of Fire,A.P.J. Abdul Kalam,Autobiography of India\'s former President,599,40,Biography,Universities Press,196,English,Paperback,9788173711466,9788173711466,1st,1999-01-01,Adult (18+),"autobiography,inspiration",0,599,In Stock,false,true\n';
-    csvContent += 'Pinjar,Amrita Pritam,A heart-wrenching partition story,450,25,Punjabi Literature,Navyug Publishers,156,English,Paperback,,,1st,1950-01-01,Adult (18+),"partition,punjabi",0,450,In Stock,true,false\n';
+    csvContent = 'title,authors,description,price,stock,categories,publisher,language,format,pages,isbn,featured,bestseller\n';
+    csvContent += 'Sample Book Title,Author Name,Book description here,999,50,Fiction,Publisher Name,English,Paperback,300,9781234567890,false,false\n';
+    csvContent += 'Another Book,Author Two,Another book description,599,25,Non-Fiction,Another Publisher,English,Hardcover,250,,true,false\n';
     filename = 'books_template.csv';
   } else if (type === 'categories') {
     csvContent = 'name,description\n';
@@ -205,4 +193,86 @@ export const downloadTemplate = (req, res) => {
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
   res.send(csvContent);
+};
+
+export const bulkImportBooksJSON = async (req, res) => {
+  try {
+    const { data } = req.body;
+    if (!Array.isArray(data)) {
+      return res.status(400).json({ message: 'Data must be an array' });
+    }
+
+    let imported = 0;
+    const errors = [];
+
+    for (let i = 0; i < data.length; i++) {
+      const bookData = data[i];
+      try {
+        if (!bookData.title || !bookData.authors || !bookData.description || !bookData.price || !bookData.stock || !bookData.categories) {
+          throw new Error('Missing required fields');
+        }
+
+        // Validate category exists
+        if (bookData.categories?.length > 0) {
+          const categoryExists = await Category.findOne({ name: bookData.categories[0] });
+          if (!categoryExists) {
+            throw new Error(`Category '${bookData.categories[0]}' does not exist`);
+          }
+        }
+
+        await Book.create(bookData);
+        imported++;
+      } catch (error) {
+        errors.push(`Item ${i + 1}: ${error.message}`);
+      }
+    }
+
+    res.json({
+      imported,
+      total: data.length,
+      errors: errors.length > 0 ? errors.slice(0, 10) : null,
+      message: `Successfully imported ${imported} out of ${data.length} books`
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Import failed', error: error.message });
+  }
+};
+
+export const bulkImportCategoriesJSON = async (req, res) => {
+  try {
+    const { data } = req.body;
+    if (!Array.isArray(data)) {
+      return res.status(400).json({ message: 'Data must be an array' });
+    }
+
+    let imported = 0;
+    const errors = [];
+
+    for (let i = 0; i < data.length; i++) {
+      const categoryData = data[i];
+      try {
+        if (!categoryData.name) {
+          throw new Error('Name is required');
+        }
+
+        await Category.create(categoryData);
+        imported++;
+      } catch (error) {
+        if (error.code === 11000) {
+          errors.push(`Category "${categoryData.name}" already exists`);
+        } else {
+          errors.push(`Item ${i + 1}: ${error.message}`);
+        }
+      }
+    }
+
+    res.json({
+      imported,
+      total: data.length,
+      errors: errors.length > 0 ? errors.slice(0, 10) : null,
+      message: `Successfully imported ${imported} out of ${data.length} categories`
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Import failed', error: error.message });
+  }
 };

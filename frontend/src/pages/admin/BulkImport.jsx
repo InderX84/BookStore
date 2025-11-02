@@ -6,14 +6,20 @@ import toast from 'react-hot-toast'
 
 export default function BulkImport() {
   const [activeTab, setActiveTab] = useState('books')
+  const [importType, setImportType] = useState('csv')
   const [file, setFile] = useState(null)
+  const [jsonData, setJsonData] = useState('')
   const queryClient = useQueryClient()
 
   const importMutation = useMutation({
-    mutationFn: ({ type, file }) => {
-      const formData = new FormData()
-      formData.append('file', file)
-      return adminService.bulkImport(type, formData)
+    mutationFn: ({ type, file, jsonData }) => {
+      if (importType === 'json') {
+        return adminService.bulkImportJSON(type, JSON.parse(jsonData))
+      } else {
+        const formData = new FormData()
+        formData.append('file', file)
+        return adminService.bulkImport(type, formData)
+      }
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries(['admin-books'])
@@ -42,11 +48,15 @@ export default function BulkImport() {
   }
 
   const handleImport = () => {
-    if (!file) {
+    if (importType === 'csv' && !file) {
       toast.error('Please select a file')
       return
     }
-    importMutation.mutate({ type: activeTab, file })
+    if (importType === 'json' && !jsonData.trim()) {
+      toast.error('Please enter JSON data')
+      return
+    }
+    importMutation.mutate({ type: activeTab, file, jsonData })
   }
 
   const downloadTemplate = (type) => {
@@ -99,6 +109,32 @@ export default function BulkImport() {
           </div>
 
           <div className="p-6">
+            {/* Import Type Selection */}
+            <div className="mb-6">
+              <div className="flex gap-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="csv"
+                    checked={importType === 'csv'}
+                    onChange={(e) => setImportType(e.target.value)}
+                    className="mr-2"
+                  />
+                  CSV File
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="json"
+                    checked={importType === 'json'}
+                    onChange={(e) => setImportType(e.target.value)}
+                    className="mr-2"
+                  />
+                  JSON Data
+                </label>
+              </div>
+            </div>
+
             {/* Instructions */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <div className="flex items-start">
@@ -110,7 +146,10 @@ export default function BulkImport() {
                     <li>• Fill in your data following the template format</li>
                     <li>• Upload the completed CSV file</li>
                     {activeTab === 'books' && (
-                      <li>• Ensure categories exist before importing books</li>
+                      <li>• Categories must exist in database before importing books</li>
+                    )}
+                    {activeTab === 'categories' && (
+                      <li>• Category names must be unique</li>
                     )}
                   </ul>
                 </div>
@@ -128,36 +167,52 @@ export default function BulkImport() {
               </button>
             </div>
 
-            {/* File Upload */}
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <div className="mb-4">
-                <label className="cursor-pointer">
-                  <span className="text-blue-600 hover:text-blue-700 font-medium">
-                    Choose CSV file
-                  </span>
-                  <input
-                    type="file"
-                    accept=".csv"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                </label>
-                <span className="text-gray-600"> or drag and drop</span>
-              </div>
-              {file && (
-                <div className="text-sm text-gray-600 mb-4">
-                  Selected: {file.name}
+            {/* Import Input */}
+            {importType === 'csv' ? (
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <div className="mb-4">
+                  <label className="cursor-pointer">
+                    <span className="text-blue-600 hover:text-blue-700 font-medium">
+                      Choose CSV file
+                    </span>
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                  </label>
+                  <span className="text-gray-600"> or drag and drop</span>
                 </div>
-              )}
-              <p className="text-xs text-gray-500">CSV files only</p>
-            </div>
+                {file && (
+                  <div className="text-sm text-gray-600 mb-4">
+                    Selected: {file.name}
+                  </div>
+                )}
+                <p className="text-xs text-gray-500">CSV files only</p>
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium mb-2">Paste JSON Data:</label>
+                <textarea
+                  value={jsonData}
+                  onChange={(e) => setJsonData(e.target.value)}
+                  placeholder={activeTab === 'books' ? 
+                    '[{"title":"Book Title","authors":["Author Name"],"description":"Description","price":999,"stock":50,"categories":["Fiction"]}]' :
+                    '[{"name":"Category Name","description":"Category description"}]'
+                  }
+                  rows={8}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 font-mono text-sm"
+                />
+              </div>
+            )}
 
             {/* Import Button */}
             <div className="mt-6">
               <button
                 onClick={handleImport}
-                disabled={!file || importMutation.isPending}
+                disabled={(importType === 'csv' && !file) || (importType === 'json' && !jsonData.trim()) || importMutation.isPending}
                 className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center"
               >
                 <Upload className="h-4 w-4 mr-2" />
@@ -172,35 +227,32 @@ export default function BulkImport() {
           <h2 className="text-lg font-semibold mb-4">Sample Data Format</h2>
           {activeTab === 'books' ? (
             <div className="overflow-x-auto">
-              <div className="text-sm mb-4">
-                <p className="font-medium mb-2">Required Fields:</p>
-                <ul className="list-disc list-inside text-gray-600 space-y-1">
-                  <li><strong>title</strong> - Book title (max 200 characters)</li>
-                  <li><strong>authors</strong> - Comma-separated author names</li>
-                  <li><strong>description</strong> - Book description (max 2000 characters)</li>
-                  <li><strong>price</strong> - Price in INR (number)</li>
-                  <li><strong>stock</strong> - Stock quantity (number)</li>
-                  <li><strong>categories</strong> - One of: Fiction, Non-Fiction, Mystery, Romance, Sci-Fi, Fantasy, Biography, History, Science, Technology, Business, Self-Help, Children, Young Adult, Poetry, Drama, Punjabi Literature, Indian Poetry, Partition Literature</li>
-                </ul>
-                
-                <p className="font-medium mb-2 mt-4">Optional Fields:</p>
-                <ul className="list-disc list-inside text-gray-600 space-y-1">
-                  <li><strong>publisher</strong> - Publisher name</li>
-                  <li><strong>pages</strong> - Number of pages</li>
-                  <li><strong>language</strong> - Book language (default: English)</li>
-                  <li><strong>format</strong> - Hardcover, Paperback, eBook, Audiobook (default: Paperback)</li>
-                  <li><strong>isbn</strong> - ISBN number</li>
-                  <li><strong>isbn13</strong> - ISBN-13 number</li>
-                  <li><strong>edition</strong> - Edition information</li>
-                  <li><strong>publishedDate</strong> - Publication date (YYYY-MM-DD)</li>
-                  <li><strong>ageGroup</strong> - Children (0-12), Young Adult (13-17), Adult (18+), All Ages</li>
-                  <li><strong>tags</strong> - Comma-separated tags</li>
-                  <li><strong>discount</strong> - Discount percentage (0-100)</li>
-                  <li><strong>originalPrice</strong> - Original price before discount</li>
-                  <li><strong>availability</strong> - In Stock, Out of Stock, Pre-order, Coming Soon</li>
-                  <li><strong>featured</strong> - true/false for featured books</li>
-                  <li><strong>bestseller</strong> - true/false for bestseller books</li>
-                </ul>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border border-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="border border-gray-200 px-3 py-2 text-left">title</th>
+                      <th className="border border-gray-200 px-3 py-2 text-left">authors</th>
+                      <th className="border border-gray-200 px-3 py-2 text-left">description</th>
+                      <th className="border border-gray-200 px-3 py-2 text-left">price</th>
+                      <th className="border border-gray-200 px-3 py-2 text-left">stock</th>
+                      <th className="border border-gray-200 px-3 py-2 text-left">categories</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="border border-gray-200 px-3 py-2">Sample Book</td>
+                      <td className="border border-gray-200 px-3 py-2">Author Name</td>
+                      <td className="border border-gray-200 px-3 py-2">Book description</td>
+                      <td className="border border-gray-200 px-3 py-2">999</td>
+                      <td className="border border-gray-200 px-3 py-2">50</td>
+                      <td className="border border-gray-200 px-3 py-2">Fiction</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p className="text-xs text-gray-500 mt-2">
+                  <strong>Note:</strong> Categories must exist in database. Optional fields: publisher, language, format, pages, isbn, featured, bestseller
+                </p>
               </div>
             </div>
           ) : (

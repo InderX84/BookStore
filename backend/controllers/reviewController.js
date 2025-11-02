@@ -12,23 +12,23 @@ export const createReview = async (req, res) => {
     }
     
     const existingReview = await Review.findOne({ 
-      user: req.user._id, 
-      book: bookId 
+      userId: req.user._id, 
+      bookId: bookId 
     });
     if (existingReview) {
       return res.status(400).json({ message: 'You have already reviewed this book' });
     }
     
     const review = new Review({
-      user: req.user._id,
-      book: bookId,
+      userId: req.user._id,
+      bookId: bookId,
       rating,
       title,
       body
     });
     
     await review.save();
-    await review.populate('user', 'name');
+    await review.populate('userId', 'name');
     
     res.status(201).json(review);
   } catch (error) {
@@ -40,7 +40,7 @@ export const updateReview = async (req, res) => {
   try {
     const review = await Review.findOne({ 
       _id: req.params.id, 
-      user: req.user._id 
+      userId: req.user._id 
     });
     
     if (!review) {
@@ -49,7 +49,7 @@ export const updateReview = async (req, res) => {
     
     Object.assign(review, req.body);
     await review.save();
-    await review.populate('user', 'name');
+    await review.populate('userId', 'name');
     
     res.json(review);
   } catch (error) {
@@ -61,7 +61,7 @@ export const deleteReview = async (req, res) => {
   try {
     const review = await Review.findOneAndDelete({ 
       _id: req.params.id, 
-      user: req.user._id 
+      userId: req.user._id 
     });
     
     if (!review) {
@@ -79,13 +79,13 @@ export const getBookReviews = async (req, res) => {
     const { page = 1, limit = 10 } = req.query;
     const bookId = req.params.bookId;
     
-    const reviews = await Review.find({ book: bookId })
-      .populate('user', 'name')
+    const reviews = await Review.find({ bookId: bookId })
+      .populate('userId', 'name')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
     
-    const total = await Review.countDocuments({ book: bookId });
+    const total = await Review.countDocuments({ bookId: bookId });
     
     res.json({
       reviews,

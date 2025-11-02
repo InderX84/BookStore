@@ -48,7 +48,7 @@ export default function AdminUsers() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold flex items-center">
@@ -58,7 +58,7 @@ export default function AdminUsers() {
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -74,7 +74,7 @@ export default function AdminUsers() {
         </div>
 
         {/* Users Table */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           {isLoading ? (
             <div className="flex justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -193,51 +193,55 @@ export default function AdminUsers() {
 
         {/* User Details Modal */}
         {selectedUser && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">User Details</h3>
-                <button 
-                  onClick={() => setSelectedUser(null)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  ×
-                </button>
+          <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-bold">User Details</h3>
+                  <button 
+                    onClick={() => setSelectedUser(null)}
+                    className="text-white hover:text-gray-200 text-2xl font-bold"
+                  >
+                    ×
+                  </button>
+                </div>
               </div>
-              <div className="space-y-3">
-                <div>
+              <div className="p-6">
+              <div className="space-y-4">
+                <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="text-sm font-medium text-gray-600">Name</label>
-                  <p className="text-gray-900">{selectedUser.name}</p>
+                  <p className="text-gray-900 font-medium">{selectedUser.name}</p>
                 </div>
-                <div>
+                <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="text-sm font-medium text-gray-600">Email</label>
-                  <p className="text-gray-900">{selectedUser.email}</p>
+                  <p className="text-gray-900 font-medium">{selectedUser.email}</p>
                 </div>
-                <div>
+                <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="text-sm font-medium text-gray-600">Role</label>
-                  <p className="text-gray-900 capitalize">{selectedUser.role}</p>
+                  <p className="text-gray-900 font-medium capitalize">{selectedUser.role}</p>
                 </div>
-                <div>
+                <div className="bg-gray-50 p-3 rounded-lg">
                   <label className="text-sm font-medium text-gray-600">Joined</label>
-                  <p className="text-gray-900">{new Date(selectedUser.createdAt).toLocaleDateString('en-IN')}</p>
+                  <p className="text-gray-900 font-medium">{new Date(selectedUser.createdAt).toLocaleDateString('en-IN')}</p>
                 </div>
                 {selectedUser.phone && (
-                  <div>
+                  <div className="bg-gray-50 p-3 rounded-lg">
                     <label className="text-sm font-medium text-gray-600">Phone</label>
-                    <p className="text-gray-900">{selectedUser.phone}</p>
+                    <p className="text-gray-900 font-medium">{selectedUser.phone}</p>
                   </div>
                 )}
                 {selectedUser.address && (
-                  <div>
+                  <div className="bg-gray-50 p-3 rounded-lg">
                     <label className="text-sm font-medium text-gray-600">Address</label>
-                    <p className="text-gray-900">{selectedUser.address.street}, {selectedUser.address.city}, {selectedUser.address.state} - {selectedUser.address.pincode}</p>
+                    <p className="text-gray-900 font-medium">{selectedUser.address.street}, {selectedUser.address.city}, {selectedUser.address.state} - {selectedUser.address.pincode}</p>
                   </div>
                 )}
               </div>
-              <div className="mt-6 flex justify-end">
+              </div>
+              <div className="bg-gray-50 px-6 py-4 rounded-b-2xl flex justify-end">
                 <button 
                   onClick={() => setSelectedUser(null)}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
                 >
                   Close
                 </button>

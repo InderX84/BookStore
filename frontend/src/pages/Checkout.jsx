@@ -50,10 +50,9 @@ export default function Checkout() {
       }
 
       console.log('Order data being sent:', orderData)
-      await ordersService.createOrder(orderData)
+      const response = await ordersService.createOrder(orderData)
       localStorage.removeItem('cart')
-      toast.success('Order placed successfully!')
-      navigate('/orders')
+      navigate(`/order-success?orderId=${response.data._id}`)
     } catch (error) {
       toast.error(error.response?.data?.message || 'Order failed')
     } finally {

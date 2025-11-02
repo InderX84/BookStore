@@ -34,15 +34,17 @@ export const createOrder = async (req, res) => {
       await book.save();
     }
     
-    const tax = subtotal * 0.18; // 18% GST
-    const total = subtotal + tax;
+    const gst = subtotal * 0.18; // 18% GST
+    const shippingCost = 50; // Fixed shipping cost
+    const totalAmount = subtotal + gst + shippingCost;
     
     const order = new Order({
       userId: req.user._id,
       items: orderItems,
       subtotal,
-      tax,
-      total,
+      tax: gst,
+      shipping: shippingCost,
+      total: totalAmount,
       paymentInfo: {
         method: paymentMethod,
         status: 'pending'
@@ -73,12 +75,7 @@ export const getOrders = async (req, res) => {
     
     const total = await Order.countDocuments({ userId: req.user._id });
     
-    res.json({
-      orders,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-      total
-    });
+    res.json(orders);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }

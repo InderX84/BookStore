@@ -15,6 +15,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Profile from './pages/Profile'
 import Orders from './pages/Orders'
+import OrderDetail from './pages/OrderDetail'
+import OrderSuccess from './pages/OrderSuccess'
 import Invoice from './pages/Invoice'
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminBooks from './pages/admin/Books'
@@ -60,6 +62,16 @@ function App() {
           <Route path="/orders" element={
             <ProtectedRoute>
               <Orders />
+            </ProtectedRoute>
+          } />
+          <Route path="/orders/:id" element={
+            <ProtectedRoute>
+              <OrderDetail />
+            </ProtectedRoute>
+          } />
+          <Route path="/order-success" element={
+            <ProtectedRoute>
+              <OrderSuccess />
             </ProtectedRoute>
           } />
           <Route path="/invoice/:id" element={

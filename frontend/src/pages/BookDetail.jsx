@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ShoppingCart, Plus, Minus } from 'lucide-react'
+import { ShoppingCart, Plus, Minus, Star, Heart, Share2 } from 'lucide-react'
 import { booksService } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import ReviewForm from '../components/ReviewForm'
@@ -64,9 +64,9 @@ export default function BookDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="bg-white rounded-lg shadow-lg p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Book Image */}
             <div className="aspect-[3/4] bg-gray-200 rounded-lg">
@@ -80,9 +80,30 @@ export default function BookDetail() {
             {/* Book Details */}
             <div className="space-y-6">
               <div>
-                <h1 className="text-3xl font-bold mb-2">{book.title}</h1>
-                <p className="text-lg text-gray-600 mb-4">by {book.authors.join(', ')}</p>
-                <div className="mb-4">
+                <h1 className="text-4xl font-bold mb-3 text-gray-900">{book.title}</h1>
+                <p className="text-xl text-gray-600 mb-4">by {book.authors.join(', ')}</p>
+                
+                {/* Rating */}
+                {book.ratingAvg > 0 && (
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="flex items-center">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-5 w-5 ${
+                            i < Math.floor(book.ratingAvg)
+                              ? 'text-yellow-400 fill-current'
+                              : 'text-gray-300'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-lg font-medium">{book.ratingAvg.toFixed(1)}</span>
+                    <span className="text-gray-500">({book.ratingCount || 0} reviews)</span>
+                  </div>
+                )}
+                
+                <div className="mb-6">
                   {book.originalPrice && book.discount > 0 ? (
                     <div>
                       <div className="text-3xl font-bold text-blue-600">₹{book.price.toFixed(2)}</div>
@@ -97,49 +118,62 @@ export default function BookDetail() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4">
-                <div className="flex items-center border rounded-lg">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center border-2 border-gray-200 rounded-xl">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="p-3 hover:bg-gray-100 rounded-l-xl"
+                    >
+                      <Minus className="h-5 w-5" />
+                    </button>
+                    <span className="px-6 py-3 border-x-2 border-gray-200 font-semibold">{quantity}</span>
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="p-3 hover:bg-gray-100 rounded-r-xl"
+                    >
+                      <Plus className="h-5 w-5" />
+                    </button>
+                  </div>
+                  
                   <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-2 hover:bg-gray-100"
+                    onClick={addToCart}
+                    disabled={book.stock === 0}
+                    className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-8 rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 flex items-center justify-center shadow-lg transition-all"
                   >
-                    <Minus className="h-4 w-4" />
-                  </button>
-                  <span className="px-4 py-2 border-x">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="p-2 hover:bg-gray-100"
-                  >
-                    <Plus className="h-4 w-4" />
+                    <ShoppingCart className="h-5 w-5 mr-2" />
+                    Add to Cart
                   </button>
                 </div>
                 
-                <button
-                  onClick={addToCart}
-                  disabled={book.stock === 0}
-                  className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
-                >
-                  <ShoppingCart className="h-5 w-5 mr-2" />
-                  Add to Cart
-                </button>
+                <div className="flex gap-3">
+                  <button className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+                    <Heart className="h-5 w-5" />
+                    Wishlist
+                  </button>
+                  <button className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+                    <Share2 className="h-5 w-5" />
+                    Share
+                  </button>
+                </div>
               </div>
 
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Description</h3>
-                <p className="text-gray-700">{book.description}</p>
+              <div className="bg-gray-50 rounded-xl p-6">
+                <h3 className="text-xl font-bold mb-4 text-gray-900">Description</h3>
+                <p className="text-gray-700 leading-relaxed">{book.description}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div><span className="font-medium">Publisher:</span> {book.publisher || 'N/A'}</div>
-                <div><span className="font-medium">Language:</span> {book.language}</div>
-                <div><span className="font-medium">Pages:</span> {book.pages || 'N/A'}</div>
-                <div><span className="font-medium">Format:</span> {book.format || 'N/A'}</div>
-                <div><span className="font-medium">Categories:</span> {book.categories?.join(', ') || 'N/A'}</div>
-                <div><span className="font-medium">Stock:</span> {book.stock} available</div>
-                {book.isbn && <div><span className="font-medium">ISBN:</span> {book.isbn}</div>}
-                {book.edition && <div><span className="font-medium">Edition:</span> {book.edition}</div>}
-                {book.series?.name && <div><span className="font-medium">Series:</span> {book.series.name} #{book.series.number}</div>}
-                {book.tags?.length > 0 && <div className="col-span-2"><span className="font-medium">Tags:</span> {book.tags.join(', ')}</div>}
+              <div className="bg-gray-50 rounded-xl p-6">
+                <h3 className="text-xl font-bold mb-4 text-gray-900">Book Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-white p-3 rounded-lg"><span className="font-semibold text-gray-600">Publisher:</span> <span className="text-gray-900">{book.publisher || 'N/A'}</span></div>
+                  <div className="bg-white p-3 rounded-lg"><span className="font-semibold text-gray-600">Language:</span> <span className="text-gray-900">{book.language}</span></div>
+                  <div className="bg-white p-3 rounded-lg"><span className="font-semibold text-gray-600">Pages:</span> <span className="text-gray-900">{book.pages || 'N/A'}</span></div>
+                  <div className="bg-white p-3 rounded-lg"><span className="font-semibold text-gray-600">Format:</span> <span className="text-gray-900">{book.format || 'N/A'}</span></div>
+                  <div className="bg-white p-3 rounded-lg md:col-span-2"><span className="font-semibold text-gray-600">Categories:</span> <span className="text-gray-900">{book.categories?.join(', ') || 'N/A'}</span></div>
+                  <div className="bg-white p-3 rounded-lg"><span className="font-semibold text-gray-600">Stock:</span> <span className={`font-bold ${book.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>{book.stock} available</span></div>
+                  {book.isbn && <div className="bg-white p-3 rounded-lg"><span className="font-semibold text-gray-600">ISBN:</span> <span className="text-gray-900">{book.isbn}</span></div>}
+                </div>
               </div>
               
               {(book.featured || book.bestseller) && (
