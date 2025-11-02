@@ -143,7 +143,8 @@ const bookSchema = new mongoose.Schema({
   timestamps: true
 });
 
-bookSchema.index({ title: 'text', authors: 'text', description: 'text', tags: 'text' });
+bookSchema.index({ title: 1 });
+bookSchema.index({ authors: 1 });
 bookSchema.index({ categories: 1 });
 bookSchema.index({ price: 1 });
 bookSchema.index({ ratingAvg: -1 });

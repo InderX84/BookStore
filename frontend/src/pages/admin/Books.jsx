@@ -4,6 +4,13 @@ import { Plus, Edit, Trash2, Search, X, Save } from 'lucide-react'
 import { booksService, adminService } from '../../services/api'
 import toast from 'react-hot-toast'
 
+const AVAILABLE_CATEGORIES = [
+  'Fiction', 'Non-Fiction', 'Mystery', 'Romance', 'Sci-Fi', 'Fantasy',
+  'Biography', 'History', 'Science', 'Technology', 'Business', 'Self-Help',
+  'Children', 'Young Adult', 'Poetry', 'Drama', 'Punjabi Literature',
+  'Indian Poetry', 'Partition Literature'
+]
+
 export default function AdminBooks() {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
@@ -17,22 +24,26 @@ export default function AdminBooks() {
     isbn13: '',
     edition: '',
     format: 'Paperback',
+    dimensions: { length: '', width: '', height: '', unit: 'cm' },
+    weight: { value: '', unit: 'g' },
+    categories: [],
     price: '',
-    originalPrice: '',
-    discount: '0',
+    currency: 'INR',
     stock: '',
-    availability: 'In Stock',
-    categories: '',
-    publisher: '',
+    images: [{ url: '', alt: '' }],
     publishedDate: '',
+    publisher: '',
     language: 'English',
     ageGroup: '',
-    pages: '',
     tags: '',
+    awards: [{ name: '', year: '' }],
     series: { name: '', number: '' },
+    originalPrice: '',
+    discount: '0',
+    availability: 'In Stock',
     featured: false,
     bestseller: false,
-    images: [{ url: '' }]
+    pages: ''
   })
   const queryClient = useQueryClient()
 
@@ -88,22 +99,26 @@ export default function AdminBooks() {
       isbn13: '',
       edition: '',
       format: 'Paperback',
+      dimensions: { length: '', width: '', height: '', unit: 'cm' },
+      weight: { value: '', unit: 'g' },
+      categories: [],
       price: '',
-      originalPrice: '',
-      discount: '0',
+      currency: 'INR',
       stock: '',
-      availability: 'In Stock',
-      categories: '',
-      publisher: '',
+      images: [{ url: '', alt: '' }],
       publishedDate: '',
+      publisher: '',
       language: 'English',
       ageGroup: '',
-      pages: '',
       tags: '',
+      awards: [{ name: '', year: '' }],
       series: { name: '', number: '' },
+      originalPrice: '',
+      discount: '0',
+      availability: 'In Stock',
       featured: false,
       bestseller: false,
-      images: [{ url: '' }]
+      pages: ''
     })
     setShowForm(false)
     setEditingBook(null)
@@ -111,35 +126,86 @@ export default function AdminBooks() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    
+    // Validation
+    if (!formData.categories || formData.categories.length === 0) {
+      toast.error('Please select at least one category')
+      return
+    }
+    
+    const authors = formData.authors.split(',').map(a => a.trim()).filter(a => a)
+    if (authors.length === 0) {
+      toast.error('Please provide at least one author')
+      return
+    }
+    
     const bookData = {
-      title: formData.title,
-      authors: formData.authors.split(',').map(a => a.trim()).filter(a => a),
-      description: formData.description,
-      categories: [formData.categories].filter(c => c),
+      title: formData.title.trim(),
+      authors: authors,
+      description: formData.description.trim(),
+      categories: Array.isArray(formData.categories) ? formData.categories : [formData.categories],
       price: parseFloat(formData.price),
+      currency: formData.currency,
       stock: parseInt(formData.stock),
-      currency: 'INR',
       format: formData.format,
       availability: formData.availability,
       language: formData.language,
-      discount: parseFloat(formData.discount),
+      discount: parseFloat(formData.discount) || 0,
       featured: formData.featured,
       bestseller: formData.bestseller
     }
 
     // Optional fields
-    if (formData.isbn) bookData.isbn = formData.isbn
-    if (formData.isbn13) bookData.isbn13 = formData.isbn13
-    if (formData.edition) bookData.edition = formData.edition
+    if (formData.isbn?.trim()) bookData.isbn = formData.isbn.trim()
+    if (formData.isbn13?.trim()) bookData.isbn13 = formData.isbn13.trim()
+    if (formData.edition?.trim()) bookData.edition = formData.edition.trim()
     if (formData.originalPrice) bookData.originalPrice = parseFloat(formData.originalPrice)
-    if (formData.publisher) bookData.publisher = formData.publisher
+    if (formData.publisher?.trim()) bookData.publisher = formData.publisher.trim()
     if (formData.publishedDate) bookData.publishedDate = formData.publishedDate
     if (formData.ageGroup) bookData.ageGroup = formData.ageGroup
     if (formData.pages) bookData.pages = parseInt(formData.pages)
-    if (formData.tags) bookData.tags = formData.tags.split(',').map(t => t.trim()).filter(t => t)
-    if (formData.series.name) bookData.series = { name: formData.series.name, number: parseInt(formData.series.number) || 1 }
-    if (formData.images[0]?.url && formData.images[0].url.trim()) {
-      bookData.images = [{ url: formData.images[0].url.trim() }]
+    if (formData.tags?.trim()) bookData.tags = formData.tags.split(',').map(t => t.trim()).filter(t => t)
+    
+    // Dimensions
+    if (formData.dimensions.length || formData.dimensions.width || formData.dimensions.height) {
+      bookData.dimensions = {
+        length: parseFloat(formData.dimensions.length) || undefined,
+        width: parseFloat(formData.dimensions.width) || undefined,
+        height: parseFloat(formData.dimensions.height) || undefined,
+        unit: formData.dimensions.unit
+      }
+    }
+    
+    // Weight
+    if (formData.weight.value) {
+      bookData.weight = {
+        value: parseFloat(formData.weight.value),
+        unit: formData.weight.unit
+      }
+    }
+    
+    // Series
+    if (formData.series.name?.trim()) {
+      bookData.series = {
+        name: formData.series.name.trim(),
+        number: parseInt(formData.series.number) || 1
+      }
+    }
+    
+    // Awards
+    if (formData.awards[0]?.name?.trim()) {
+      bookData.awards = formData.awards.filter(award => award.name?.trim()).map(award => ({
+        name: award.name.trim(),
+        year: parseInt(award.year) || new Date().getFullYear()
+      }))
+    }
+    
+    // Images
+    if (formData.images[0]?.url?.trim()) {
+      bookData.images = formData.images.filter(img => img.url?.trim()).map(img => ({
+        url: img.url.trim(),
+        alt: img.alt?.trim() || formData.title
+      }))
     }
 
     if (editingBook) {
@@ -159,22 +225,37 @@ export default function AdminBooks() {
       isbn13: book.isbn13 || '',
       edition: book.edition || '',
       format: book.format || 'Paperback',
+      dimensions: {
+        length: book.dimensions?.length?.toString() || '',
+        width: book.dimensions?.width?.toString() || '',
+        height: book.dimensions?.height?.toString() || '',
+        unit: book.dimensions?.unit || 'cm'
+      },
+      weight: {
+        value: book.weight?.value?.toString() || '',
+        unit: book.weight?.unit || 'g'
+      },
+      categories: book.categories || [],
       price: book.price.toString(),
-      originalPrice: book.originalPrice?.toString() || '',
-      discount: book.discount?.toString() || '0',
+      currency: book.currency || 'INR',
       stock: book.stock.toString(),
-      availability: book.availability || 'In Stock',
-      categories: book.categories[0] || '',
-      publisher: book.publisher || '',
+      images: book.images?.length ? book.images : [{ url: '', alt: '' }],
       publishedDate: book.publishedDate ? book.publishedDate.split('T')[0] : '',
+      publisher: book.publisher || '',
       language: book.language || 'English',
       ageGroup: book.ageGroup || '',
-      pages: book.pages?.toString() || '',
       tags: book.tags?.join(', ') || '',
-      series: { name: book.series?.name || '', number: book.series?.number?.toString() || '' },
+      awards: book.awards?.length ? book.awards : [{ name: '', year: '' }],
+      series: {
+        name: book.series?.name || '',
+        number: book.series?.number?.toString() || ''
+      },
+      originalPrice: book.originalPrice?.toString() || '',
+      discount: book.discount?.toString() || '0',
+      availability: book.availability || 'In Stock',
       featured: book.featured || false,
       bestseller: book.bestseller || false,
-      images: book.images || [{ url: '' }]
+      pages: book.pages?.toString() || ''
     })
     setShowForm(true)
   }
@@ -316,34 +397,31 @@ export default function AdminBooks() {
                   <h3 className="text-lg font-medium mb-3">Classification</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Category *</label>
-                      <select
-                        required
-                        value={formData.categories}
-                        onChange={(e) => setFormData({...formData, categories: e.target.value})}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">Select a category</option>
-                        <option value="Fiction">Fiction</option>
-                        <option value="Non-Fiction">Non-Fiction</option>
-                        <option value="Mystery">Mystery</option>
-                        <option value="Romance">Romance</option>
-                        <option value="Sci-Fi">Sci-Fi</option>
-                        <option value="Fantasy">Fantasy</option>
-                        <option value="Biography">Biography</option>
-                        <option value="History">History</option>
-                        <option value="Science">Science</option>
-                        <option value="Technology">Technology</option>
-                        <option value="Business">Business</option>
-                        <option value="Self-Help">Self-Help</option>
-                        <option value="Children">Children</option>
-                        <option value="Young Adult">Young Adult</option>
-                        <option value="Poetry">Poetry</option>
-                        <option value="Drama">Drama</option>
-                        <option value="Punjabi Literature">Punjabi Literature</option>
-                        <option value="Indian Poetry">Indian Poetry</option>
-                        <option value="Partition Literature">Partition Literature</option>
-                      </select>
+                      <label className="block text-sm font-medium mb-2">Categories * (Select at least one)</label>
+                      <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-3">
+                        {AVAILABLE_CATEGORIES.map(category => (
+                          <label key={category} className="flex items-center text-sm">
+                            <input
+                              type="checkbox"
+                              checked={formData.categories.includes(category)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setFormData({...formData, categories: [...formData.categories, category]})
+                                } else {
+                                  setFormData({...formData, categories: formData.categories.filter(c => c !== category)})
+                                }
+                              }}
+                              className="mr-2 rounded"
+                            />
+                            {category}
+                          </label>
+                        ))}
+                      </div>
+                      {formData.categories.length > 0 && (
+                        <p className="text-xs text-green-600 mt-1">
+                          Selected: {formData.categories.join(', ')}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">Language</label>
@@ -354,6 +432,15 @@ export default function AdminBooks() {
                       >
                         <option value="English">English</option>
                         <option value="Hindi">Hindi</option>
+                        <option value="Spanish">Spanish</option>
+                        <option value="French">French</option>
+                        <option value="German">German</option>
+                        <option value="Italian">Italian</option>
+                        <option value="Portuguese">Portuguese</option>
+                        <option value="Chinese">Chinese</option>
+                        <option value="Japanese">Japanese</option>
+                        <option value="Korean">Korean</option>
+                        <option value="Arabic">Arabic</option>
                         <option value="Bengali">Bengali</option>
                         <option value="Telugu">Telugu</option>
                         <option value="Marathi">Marathi</option>
@@ -405,12 +492,85 @@ export default function AdminBooks() {
                   </div>
                 </div>
 
+                {/* Physical Details */}
+                <div className="border-b pb-4">
+                  <h3 className="text-lg font-medium mb-3">Physical Details</h3>
+                  <div className="grid grid-cols-3 gap-4 mb-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Length ({formData.dimensions.unit})</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={formData.dimensions.length}
+                        onChange={(e) => setFormData({...formData, dimensions: {...formData.dimensions, length: e.target.value}})}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Width ({formData.dimensions.unit})</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={formData.dimensions.width}
+                        onChange={(e) => setFormData({...formData, dimensions: {...formData.dimensions, width: e.target.value}})}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Height ({formData.dimensions.unit})</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={formData.dimensions.height}
+                        onChange={(e) => setFormData({...formData, dimensions: {...formData.dimensions, height: e.target.value}})}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Dimension Unit</label>
+                      <select
+                        value={formData.dimensions.unit}
+                        onChange={(e) => setFormData({...formData, dimensions: {...formData.dimensions, unit: e.target.value}})}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="cm">Centimeters</option>
+                        <option value="inch">Inches</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Weight</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        value={formData.weight.value}
+                        onChange={(e) => setFormData({...formData, weight: {...formData.weight, value: e.target.value}})}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Weight Unit</label>
+                      <select
+                        value={formData.weight.unit}
+                        onChange={(e) => setFormData({...formData, weight: {...formData.weight, unit: e.target.value}})}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="g">Grams</option>
+                        <option value="kg">Kilograms</option>
+                        <option value="oz">Ounces</option>
+                        <option value="lb">Pounds</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Pricing & Inventory */}
                 <div className="border-b pb-4">
                   <h3 className="text-lg font-medium mb-3">Pricing & Inventory</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Price (INR) *</label>
+                      <label className="block text-sm font-medium mb-1">Price *</label>
                       <input
                         type="number"
                         step="0.01"
@@ -421,7 +581,20 @@ export default function AdminBooks() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Original Price (INR)</label>
+                      <label className="block text-sm font-medium mb-1">Currency</label>
+                      <select
+                        value={formData.currency}
+                        onChange={(e) => setFormData({...formData, currency: e.target.value})}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="INR">INR (₹)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Original Price</label>
                       <input
                         type="number"
                         step="0.01"
@@ -490,14 +663,55 @@ export default function AdminBooks() {
                       />
                     </div>
                   </div>
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium mb-1">Image URL</label>
-                    <input
-                      type="url"
-                      value={formData.images[0]?.url || ''}
-                      onChange={(e) => setFormData({...formData, images: [{url: e.target.value}]})}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
-                    />
+                  <div className="mt-4 space-y-3">
+                    <h4 className="font-medium">Awards</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Award Name</label>
+                        <input
+                          type="text"
+                          value={formData.awards[0]?.name || ''}
+                          onChange={(e) => setFormData({...formData, awards: [{...formData.awards[0], name: e.target.value}]})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Award Year</label>
+                        <input
+                          type="number"
+                          min="1900"
+                          max={new Date().getFullYear()}
+                          value={formData.awards[0]?.year || ''}
+                          onChange={(e) => setFormData({...formData, awards: [{...formData.awards[0], year: e.target.value}]})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 space-y-3">
+                    <h4 className="font-medium">Book Image</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Image URL</label>
+                        <input
+                          type="url"
+                          value={formData.images[0]?.url || ''}
+                          onChange={(e) => setFormData({...formData, images: [{...formData.images[0], url: e.target.value}]})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Image Alt Text</label>
+                        <input
+                          type="text"
+                          value={formData.images[0]?.alt || ''}
+                          onChange={(e) => setFormData({...formData, images: [{...formData.images[0], alt: e.target.value}]})}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+                          placeholder="Book cover description"
+                        />
+                      </div>
+                    </div>
                   </div>
                   <div className="mt-4 flex gap-6">
                     <label className="flex items-center">
@@ -505,7 +719,7 @@ export default function AdminBooks() {
                         type="checkbox"
                         checked={formData.featured}
                         onChange={(e) => setFormData({...formData, featured: e.target.checked})}
-                        className="mr-2"
+                        className="mr-2 rounded"
                       />
                       Featured Book
                     </label>
@@ -514,7 +728,7 @@ export default function AdminBooks() {
                         type="checkbox"
                         checked={formData.bestseller}
                         onChange={(e) => setFormData({...formData, bestseller: e.target.checked})}
-                        className="mr-2"
+                        className="mr-2 rounded"
                       />
                       Bestseller
                     </label>

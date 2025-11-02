@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { Suspense } from 'react'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -26,11 +26,14 @@ import Analytics from './pages/admin/Analytics'
 import NotFound from './pages/NotFound'
 
 function App() {
+  const location = useLocation()
+  const hideNavFooter = ['/login', '/register'].includes(location.pathname)
+
   return (
     <ErrorBoundary>
       <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-1">
+        {!hideNavFooter && <Navbar />}
+        <main className={hideNavFooter ? '' : 'flex-1'}>
           <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/books" element={<Books />} />
@@ -105,7 +108,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
-        <Footer />
+        {!hideNavFooter && <Footer />}
       </div>
     </ErrorBoundary>
   )

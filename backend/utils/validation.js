@@ -13,35 +13,49 @@ export const loginSchema = Joi.object({
 
 export const bookSchema = Joi.object({
   title: Joi.string().max(200).required(),
-  authors: Joi.array().items(Joi.string()).min(1).required(),
+  authors: Joi.array().items(Joi.string().trim()).min(1).required(),
   description: Joi.string().max(2000).required(),
-  isbn: Joi.string().optional(),
-  isbn13: Joi.string().optional(),
-  edition: Joi.string().optional(),
+  isbn: Joi.string().allow('', null).optional(),
+  isbn13: Joi.string().allow('', null).optional(),
+  edition: Joi.string().allow('', null).optional(),
   format: Joi.string().valid('Hardcover', 'Paperback', 'eBook', 'Audiobook').default('Paperback'),
+  dimensions: Joi.object({
+    length: Joi.number().min(0).optional(),
+    width: Joi.number().min(0).optional(),
+    height: Joi.number().min(0).optional(),
+    unit: Joi.string().valid('cm', 'inch').default('cm')
+  }).optional(),
+  weight: Joi.object({
+    value: Joi.number().min(0).optional(),
+    unit: Joi.string().valid('g', 'kg', 'oz', 'lb').default('g')
+  }).optional(),
   categories: Joi.array().items(Joi.string().valid('Fiction', 'Non-Fiction', 'Mystery', 'Romance', 'Sci-Fi', 'Fantasy', 'Biography', 'History', 'Science', 'Technology', 'Business', 'Self-Help', 'Children', 'Young Adult', 'Poetry', 'Drama', 'Punjabi Literature', 'Indian Poetry', 'Partition Literature')).min(1).required(),
   price: Joi.number().min(0).required(),
-  originalPrice: Joi.number().min(0).optional(),
-  discount: Joi.number().min(0).max(100).default(0),
   currency: Joi.string().valid('INR', 'USD', 'EUR', 'GBP').default('INR'),
   stock: Joi.number().min(0).required(),
-  availability: Joi.string().valid('In Stock', 'Out of Stock', 'Pre-order', 'Coming Soon').default('In Stock'),
-  publishedDate: Joi.date().optional(),
-  publisher: Joi.string().optional(),
+  images: Joi.array().items(Joi.object({
+    url: Joi.string().uri().allow('', null).optional(),
+    alt: Joi.string().allow('', null).optional()
+  })).optional(),
+  publishedDate: Joi.date().allow('', null).optional(),
+  publisher: Joi.string().allow('', null).optional(),
   language: Joi.string().valid('English', 'Hindi', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Chinese', 'Japanese', 'Korean', 'Arabic', 'Bengali', 'Telugu', 'Marathi', 'Tamil', 'Gujarati', 'Urdu', 'Kannada', 'Malayalam', 'Punjabi').default('English'),
-  ageGroup: Joi.string().valid('Children (0-12)', 'Young Adult (13-17)', 'Adult (18+)', 'All Ages').optional(),
-  pages: Joi.number().min(1).optional(),
-  tags: Joi.array().items(Joi.string()).optional(),
+  ageGroup: Joi.string().valid('Children (0-12)', 'Young Adult (13-17)', 'Adult (18+)', 'All Ages').allow('', null).optional(),
+  tags: Joi.array().items(Joi.string().trim()).optional(),
+  awards: Joi.array().items(Joi.object({
+    name: Joi.string().required(),
+    year: Joi.number().min(1900).max(new Date().getFullYear()).required()
+  })).optional(),
   series: Joi.object({
-    name: Joi.string().optional(),
-    number: Joi.number().optional()
+    name: Joi.string().required(),
+    number: Joi.number().min(1).optional()
   }).optional(),
+  originalPrice: Joi.number().min(0).optional(),
+  discount: Joi.number().min(0).max(100).default(0),
+  availability: Joi.string().valid('In Stock', 'Out of Stock', 'Pre-order', 'Coming Soon').default('In Stock'),
   featured: Joi.boolean().default(false),
   bestseller: Joi.boolean().default(false),
-  images: Joi.array().items(Joi.object({
-    url: Joi.string().uri().optional(),
-    alt: Joi.string().optional()
-  })).optional()
+  pages: Joi.number().min(1).optional()
 });
 
 export const reviewSchema = Joi.object({
@@ -67,13 +81,18 @@ export const orderSchema = Joi.object({
 
 export const validate = (schema) => {
   return (req, res, next) => {
-    const { error } = schema.validate(req.body, { allowUnknown: true });
+    const { error, value } = schema.validate(req.body, { 
+      allowUnknown: true,
+      stripUnknown: true,
+      convert: true
+    });
     if (error) {
       return res.status(400).json({
         message: 'Validation error',
         details: error.details.map(detail => detail.message)
       });
     }
+    req.body = value;
     next();
   };
 };

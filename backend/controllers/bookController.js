@@ -8,7 +8,8 @@ export const getBooks = async (req, res) => {
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
-        { authors: { $regex: search, $options: 'i' } }
+        { authors: { $elemMatch: { $regex: search, $options: 'i' } } },
+        { description: { $regex: search, $options: 'i' } }
       ];
     }
     if (category) query.categories = category;

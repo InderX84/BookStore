@@ -172,28 +172,36 @@ export default function BulkImport() {
           <h2 className="text-lg font-semibold mb-4">Sample Data Format</h2>
           {activeTab === 'books' ? (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm border border-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="border border-gray-200 px-3 py-2 text-left">title</th>
-                    <th className="border border-gray-200 px-3 py-2 text-left">authors</th>
-                    <th className="border border-gray-200 px-3 py-2 text-left">description</th>
-                    <th className="border border-gray-200 px-3 py-2 text-left">price</th>
-                    <th className="border border-gray-200 px-3 py-2 text-left">stock</th>
-                    <th className="border border-gray-200 px-3 py-2 text-left">categories</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="border border-gray-200 px-3 py-2">Sample Book</td>
-                    <td className="border border-gray-200 px-3 py-2">Author One</td>
-                    <td className="border border-gray-200 px-3 py-2">Book description</td>
-                    <td className="border border-gray-200 px-3 py-2">999</td>
-                    <td className="border border-gray-200 px-3 py-2">50</td>
-                    <td className="border border-gray-200 px-3 py-2">Fiction</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div className="text-sm mb-4">
+                <p className="font-medium mb-2">Required Fields:</p>
+                <ul className="list-disc list-inside text-gray-600 space-y-1">
+                  <li><strong>title</strong> - Book title (max 200 characters)</li>
+                  <li><strong>authors</strong> - Comma-separated author names</li>
+                  <li><strong>description</strong> - Book description (max 2000 characters)</li>
+                  <li><strong>price</strong> - Price in INR (number)</li>
+                  <li><strong>stock</strong> - Stock quantity (number)</li>
+                  <li><strong>categories</strong> - One of: Fiction, Non-Fiction, Mystery, Romance, Sci-Fi, Fantasy, Biography, History, Science, Technology, Business, Self-Help, Children, Young Adult, Poetry, Drama, Punjabi Literature, Indian Poetry, Partition Literature</li>
+                </ul>
+                
+                <p className="font-medium mb-2 mt-4">Optional Fields:</p>
+                <ul className="list-disc list-inside text-gray-600 space-y-1">
+                  <li><strong>publisher</strong> - Publisher name</li>
+                  <li><strong>pages</strong> - Number of pages</li>
+                  <li><strong>language</strong> - Book language (default: English)</li>
+                  <li><strong>format</strong> - Hardcover, Paperback, eBook, Audiobook (default: Paperback)</li>
+                  <li><strong>isbn</strong> - ISBN number</li>
+                  <li><strong>isbn13</strong> - ISBN-13 number</li>
+                  <li><strong>edition</strong> - Edition information</li>
+                  <li><strong>publishedDate</strong> - Publication date (YYYY-MM-DD)</li>
+                  <li><strong>ageGroup</strong> - Children (0-12), Young Adult (13-17), Adult (18+), All Ages</li>
+                  <li><strong>tags</strong> - Comma-separated tags</li>
+                  <li><strong>discount</strong> - Discount percentage (0-100)</li>
+                  <li><strong>originalPrice</strong> - Original price before discount</li>
+                  <li><strong>availability</strong> - In Stock, Out of Stock, Pre-order, Coming Soon</li>
+                  <li><strong>featured</strong> - true/false for featured books</li>
+                  <li><strong>bestseller</strong> - true/false for bestseller books</li>
+                </ul>
+              </div>
             </div>
           ) : (
             <div className="overflow-x-auto">

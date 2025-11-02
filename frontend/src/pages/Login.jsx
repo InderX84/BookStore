@@ -30,7 +30,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="h-screen w-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
       <div className="max-w-4xl w-full">
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
           <div className="flex flex-col lg:flex-row">
